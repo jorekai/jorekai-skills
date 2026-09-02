@@ -20,6 +20,14 @@ Read before running any `seo-*` skill on this domain. One `key: value` per line 
 - static_dir: (directory served at the site root; the IndexNow key file goes here)
 - publish: (command or process that deploys)
 
+## Hosted site (only when the site is not in this repo)
+
+- ssh_host: (alias from `~/.ssh/config`, or user@host)
+- site_path: (document root of the CMS install)
+- cli: (e.g. `wp` with the exact invocation that works, PHP binary included; blank when there is none)
+- cache_layers: (page cache plugin, object cache, CDN; each one is cleared after a change)
+- deploy_rule: (how code reaches the server, e.g. `php -l file && cp file target && chown`)
+
 ## Search Console calibration
 
 - brand_regex: (RE2, case-insensitive, e.g. `acme|acme shop`)
