@@ -1,0 +1,5 @@
+interface:
+  display_name: "SEO grill"
+  short_description: "Interview: niche, audience, keywords, evidence"
+policy:
+  allow_implicit_invocation: false

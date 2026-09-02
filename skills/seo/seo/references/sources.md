@@ -1,0 +1,141 @@
+# Sources
+
+Claims in this skill set that rest on a documented fact, with the source and the date it was last checked. Re-check these when refreshing the skills; everything not listed here is a heuristic or the author's practice.
+
+| Claim | Source | Checked |
+|---|---|---|
+| Indexing API only for `JobPosting` and `BroadcastEvent` pages | https://developers.google.com/search/apis/indexing-api/v3/quickstart | 2026-09-02 |
+| FAQ rich results only for well-known government and health sites; HowTo rich results deprecated (Aug 2023) | https://developers.google.com/search/blog/2023/08/howto-faq-changes | 2026-09-02 |
+| Google ignores `priority` and `changefreq`; uses `lastmod` when accurate; 50 MB / 50,000 URLs per sitemap | https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap | 2026-09-02 |
+| INP replaced FID on 2024-03-12; good INP ≤ 200 ms | https://web.dev/blog/inp-cwv-march-12 | 2026-09-02 |
+| IndexNow participants: Bing, Naver, Seznam, Yandex, Yep, Amazon; Google absent | https://www.indexnow.org/faq | 2026-09-02 |
+| Paid links need `rel="sponsored"` or `nofollow`; excessive link exchanges are link spam | https://developers.google.com/search/docs/essentials/spam-policies | 2026-09-02 |
+| Page indexing report reason names | https://support.google.com/webmasters/answer/7440203 | 2026-09-02 |
+| JS rendering is queued ("a few seconds, but it can take longer"); SSR or pre-rendering recommended | https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics | 2026-09-02 |
+| GSC UI export capped at 1,000 rows; API up to 50,000 | https://developers.google.com/search/blog/2022/10/performance-data-deep-dive | 2026-09-02 |
+| Subdomains and subdirectories treated the same (John Mueller) | https://www.searchenginejournal.com/google-treats-subdomains-subdirectories-john-mueller-says/254687/ | 2026-09-02 |
+| Reddit outbound links `rel="nofollow ugc"`; LinkedIn `nofollow` since 2014; X removed `nofollow` in June 2022 | https://searchengineland.com/twitter-removes-nofollow-attribute-from-links-in-tweets-385753 | 2026-09-02 |
+| No title length limit; truncation by pixel width | https://developers.google.com/search/docs/appearance/title-link | 2026-09-02 |
+| Self-referencing, absolute canonicals recommended | https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls | 2026-09-02 |
+| Reddit's formal 10 % self-promotion rule retired; participant-vs-promoter judgement remains | https://redship.io/blog/reddit-self-promotion-rules | 2026-09-02 |
+| Google accepts zero or several H1s; one H1 is convention, not a requirement | https://www.searchenginejournal.com/google-h1-headings-seo/328459/ | 2026-09-02 |
+| Crawl budget matters only for 1,000,000+ pages, 10,000+ daily-changing pages, or many "Discovered – currently not indexed" | https://developers.google.com/search/docs/crawling-indexing/large-site-managing-crawl-budget | 2026-09-02 |
+| Scaled content abuse: generative-AI pages at scale without value are spam; expired domain abuse | https://developers.google.com/search/docs/essentials/spam-policies | 2026-09-02 |
+| Keywords in URLs are a "very small" ranking factor (Mueller) | https://www.seroundtable.com/google-keywords-in-urls-a-small-ranking-factor-21577.html | 2026-09-02 |
+| Helpful-content self-assessment: who, how, why; E-E-A-T | https://developers.google.com/search/docs/fundamentals/creating-helpful-content | 2026-09-02 |
+| OAI-SearchBot must be allowed for ChatGPT search; GPTBot and ChatGPT-User do not affect search | https://developers.openai.com/api/docs/bots | 2026-09-02 |
+| PerplexityBot must be allowed for Perplexity citations; Perplexity-User ignores robots.txt | https://docs.perplexity.ai/guides/bots | 2026-09-02 |
+| Google-Extended controls Gemini training and Gemini grounding (Gemini Apps, Vertex AI); no effect on Search inclusion or ranking; crawling happens as Googlebot | https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers | 2026-09-02 |
+| ChatGPT search retrieves through Bing; 87 % of sampled citations in Bing top 20 (Seer Interactive) | https://parse.gl/blog/bing-rankings-chatgpt-visibility | 2026-09-02 |
+| "Discovered – currently not indexed": crawl postponed to avoid overloading the site | https://www.conductor.com/academy/index-coverage/faq/discovered-not-indexed/ | 2026-09-02 |
+| Request-indexing quota about 10–12 URLs per property per day, unpublished | https://alevdigital.com/blog/google-search-console-request-indexing/ | 2026-09-02 |
+| Organic CTR by position varies 19–40 % for position 1 across studies; AI Overviews reduce it | https://growthsrc.com/google-organic-ctr-study/ | 2026-09-02 |
+| Google's crawlers follow up to 10 redirect hops; soft 404 is a 2xx page whose content "suggests an error", an empty page, or an error message | https://developers.google.com/search/docs/crawling-indexing/http-network-errors | 2026-09-02 |
+| Mueller: keep redirect chains under 5 hops for frequently crawled URLs | https://www.searchenginejournal.com/googles-john-mueller-recommends-less-than-5-hops-per-redirect-chain/344664/ | 2026-09-02 |
+| 301 and 308 are permanent (target becomes canonical), 302/303/307 temporary; instant meta refresh = permanent, delayed = temporary; JS redirects last resort | https://developers.google.com/search/docs/crawling-indexing/301-redirects | 2026-09-02 |
+| Keep redirects "generally at least 1 year" after a site move | https://developers.google.com/search/docs/crawling-indexing/site-move-with-url-changes | 2026-09-02 |
+| A robots.txt-blocked page's noindex is never seen; indexifembedded; X-Robots-Tag for non-HTML; nosnippet, data-nosnippet, max-snippet | https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag | 2026-09-02 |
+| Mueller (Sept 2024): noindex plus canonical elsewhere, "I'd just pick one" | https://www.searchenginejournal.com/canonical-and-noindex-at-same-time/528501/ | 2026-09-02 |
+| Mueller (Dec 2021): pages that look like error pages may be treated as soft 404 | https://www.seroundtable.com/error-like-pages-soft-404-google-32690.html | 2026-09-02 |
+| URL Inspection default view is the indexed version, "Test live URL" fetches now; "URL is unknown to Google" = never seen | https://support.google.com/webmasters/answer/9012289 | 2026-09-02 |
+| Validate fix "typically takes up to about two weeks"; Started / Passed / Failed meanings | https://support.google.com/webmasters/answer/7440203 | 2026-09-02 |
+| Sitemap lastmod used only when "consistently and verifiably" accurate; RSS/Atom feed accepted as sitemap; WebSub documented | https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap | 2026-09-02 |
+| Sitemap ping endpoint deprecated (June 2023); lastmod means "last significant modification"; inflated dates lose trust | https://developers.google.com/search/blog/2023/06/sitemaps-lastmod-ping | 2026-09-02 |
+| Illyes (2019): sitemaps are the second discovery option after links | https://www.seroundtable.com/google-xml-sitemaps-second-important-discovery-28120.html | 2026-09-02 |
+| Only `<a href>` is crawlable; "Every page you care about should have a link from at least one other page"; descriptive anchor text | https://developers.google.com/search/docs/crawling-indexing/links-crawlable | 2026-09-02 |
+| Bulk data export to BigQuery "is not affected by the daily data row limit"; anonymized queries withheld | https://developers.google.com/search/blog/2023/02/bulk-data-export | 2026-09-02 |
+| Bulk export costs: "free usage level", set partition expiration | https://support.google.com/webmasters/answer/12917675 | 2026-09-02 |
+| Performance filters use RE2 regex, case-insensitive by default, `(?-i)` for case-sensitive; Compare adds a Difference column, one comparison at a time, weekly/monthly granularity advised | https://support.google.com/webmasters/answer/17011165 | 2026-09-02 |
+| Debugging drops: "Last 16 months", "Compare last 3 months year over year", seasonality | https://developers.google.com/search/docs/monitor-debug/debugging-search-traffic-drops | 2026-09-02 |
+| AI Overview click counts as a click; all links in one AI Overview share one position; AI Mode positions like a results page | https://support.google.com/webmasters/answer/7042828 | 2026-09-02 |
+| Generative AI performance report: impressions only, by page/country/date/device, all sites since 2026-08-31 | https://support.google.com/webmasters/answer/16984139 | 2026-09-02 |
+| AI Overviews and AI Mode: "no additional requirements", indexed and snippet-eligible, same snippet controls, counted in Search Console overall traffic | https://developers.google.com/search/docs/appearance/ai-features | 2026-09-02 |
+| Title link sources: title element, H1 and headings, og:title, prominent text, anchor text, WebSite markup | https://developers.google.com/search/docs/appearance/title-link | 2026-09-02 |
+| Google (Sept 2021): title element used "around 87 % of the time" | https://searchengineland.com/google-explains-why-it-made-the-title-change-to-the-search-results-374501 | 2026-09-02 |
+| Sitelinks are automated | https://developers.google.com/search/docs/appearance/sitelinks | 2026-09-02 |
+| Sitelinks search box "no longer available" (removed November 2024) | https://developers.google.com/search/docs/appearance/structured-data/sitelinks-searchbox | 2026-09-02 |
+| Breadcrumb rich result "available on desktop" only (mobile removal January 2025) | https://developers.google.com/search/docs/appearance/structured-data/breadcrumb | 2026-09-02 |
+| Featured snippets need "enough text"; no markup | https://developers.google.com/search/docs/appearance/featured-snippets | 2026-09-02 |
+| Sullivan (Jan 2020): featured-snippet page not repeated on page 1 | https://www.searchenginejournal.com/google-web-pages-in-featured-snippets-not-repeated-in-organic-listings/344748/ | 2026-09-02 |
+| Ahrefs (863,000 keywords, 4M AI Overview URLs, March 2026): 38 % of cited pages in the organic top 10 | https://www.searchenginejournal.com/google-ai-overview-citations-from-top-ranking-pages-drop-sharply/568637/ | 2026-09-02 |
+| DiscussionForumPosting only for user-generated posts | https://developers.google.com/search/docs/appearance/structured-data/discussion-forum | 2026-09-02 |
+| Reddit visibility (Sistrix data via Amsive, top 50,000 keywords): rank 68 to rank 5 among US domains, July 2023 to July 2024 | https://www.amsive.com/insights/seo/reddits-seo-growth-a-deep-dive-into-reddits-recent-surge-in-seo-visibility/ | 2026-09-02 |
+| Anthropic crawlers: ClaudeBot (training), Claude-User (live fetch), Claude-SearchBot (search index) | https://support.claude.com/en/articles/8896518 | 2026-09-02 |
+| Applebot-Extended opts out of training only; Applebot feeds Siri, Spotlight, Safari | https://support.apple.com/en-us/119829 | 2026-09-02 |
+| Copilot grounds through Bing's index; Bingbot; IndexNow recommended | https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/generative-ai-public-websites | 2026-09-02 |
+| Mueller (Jan and June 2026): no AI system known to use llms.txt | https://www.seroundtable.com/google-does-not-endorse-llms-txt-40789.html | 2026-09-02 |
+| Discover: automatic eligibility, image at least 1200 px wide, max-image-preview:large, no clickbait | https://developers.google.com/search/docs/appearance/google-discover | 2026-09-02 |
+| Discover coming to desktop (Search Central Live Madrid, April 2025) | https://www.searchenginejournal.com/google-confirms-discover-coming-to-desktop-search/544029/ | 2026-09-02 |
+| VideoObject required properties; Clip and SeekToAction for key moments; markup only on the watch page | https://developers.google.com/search/docs/appearance/structured-data/video | 2026-09-02 |
+| Video results only where video is the main content (December 2023) | https://developers.google.com/search/blog/2023/12/video-is-the-main-content | 2026-09-02 |
+| Third-party embeds may be indexed on both pages; no hosting preference stated | https://developers.google.com/search/docs/appearance/video | 2026-09-02 |
+| Video indexing report covers indexed pages only | https://support.google.com/webmasters/answer/9495631 | 2026-09-02 |
+| Rater guidelines, September 11 2025 edition: MC definition; effort, originality, talent or skill; 4.6.6 Lowest for copied, paraphrased, auto or AI generated content with little to no added value; generative AI alone does not set the rating; 2.5.3 contact information, Low rating for money/YMYL pages without it | https://static.googleusercontent.com/media/guidelines.raterhub.com/en//searchqualityevaluatorguidelines.pdf | 2026-09-02 |
+| Three spam policies announced March 2024; site reputation abuse effective May 5 2024; expired domain abuse definition and "fine to use an old domain name for a new, original site" | https://developers.google.com/search/blog/2024/03/core-update-spam-policies | 2026-09-02 |
+| Site reputation abuse applies "regardless of whether there is first-party involvement" (November 19 2024); FAQ December 2024, wording January 2025 | https://developers.google.com/search/blog/2024/11/site-reputation-abuse | 2026-09-02 |
+| Link spam examples: advertorials, optimized anchors in guest posts and press releases, low-quality directories, widgets, footer/template links, forum signatures (page last updated 2026-08-28) | https://developers.google.com/search/docs/essentials/spam-policies | 2026-09-02 |
+| Forbes Advisor drop reported as site reputation abuse action (September 2024) | https://www.seroundtable.com/google-hit-forbes-advisor-38147.html | 2026-09-02 |
+| Dates: visible and structured dates must match; no future or event dates; several signals combined | https://developers.google.com/search/docs/appearance/publication-dates | 2026-09-02 |
+| Mueller (Feb 2022): changing the date without changing content "is just noise & useless" | https://www.seroundtable.com/google-update-content-date-32878.html | 2026-09-02 |
+| Organization markup: url, sameAs, logo at least 112 x 112 px; no mention of Wikidata | https://developers.google.com/search/docs/appearance/structured-data/organization | 2026-09-02 |
+| Knowledge panel claiming: not all panels claimable; local businesses use Business Profile | https://support.google.com/knowledgepanel/answer/7534902 | 2026-09-02 |
+| Article markup: author.name holds the name only; one author object per person | https://developers.google.com/search/docs/appearance/structured-data/article | 2026-09-02 |
+| Sullivan (Jan 2024): bylines "don't help you rank better", Google does not check credentials | https://www.seroundtable.com/google-author-bylines-ranking-36684.html | 2026-09-02 |
+| Cutts (2013): the 100-links-per-page guideline was dropped before 2008 | https://searchengineland.com/googles-matt-cutts-we-dropped-the-100-links-per-page-guideline-but-we-may-take-action-if-it-is-too-spammy-178197 | 2026-09-02 |
+| Image sitemaps for images reached via JavaScript; caption/geo/title/license tags deprecated | https://developers.google.com/search/docs/crawling-indexing/sitemaps/image-sitemaps | 2026-09-02 |
+| Images: fallback src required, CSS images not indexed, formats BMP GIF JPEG PNG WebP SVG AVIF, descriptive filenames | https://developers.google.com/search/docs/appearance/google-images | 2026-09-02 |
+| Lazy loading must load content when visible in the viewport, never on user action | https://developers.google.com/search/docs/crawling-indexing/javascript/lazy-loading | 2026-09-02 |
+| LCP: fetchpriority="high", never lazy-load the LCP image, four subparts | https://web.dev/articles/optimize-lcp | 2026-09-02 |
+| INP: break long tasks, yield, avoid layout thrashing, keep the DOM small | https://web.dev/articles/optimize-inp | 2026-09-02 |
+| CLS: width and height or aspect-ratio, preload critical fonts | https://web.dev/articles/optimize-cls | 2026-09-02 |
+| Page experience: relevance wins "even if the page experience is sub-par" | https://developers.google.com/search/docs/appearance/page-experience | 2026-09-02 |
+| Web Almanac 2025 (CrUX, July 2025): 48 % of mobile and 56 % of desktop origins pass all Core Web Vitals | https://almanac.httparchive.org/en/2025/performance | 2026-09-02 |
+| Pagination: rel prev/next unused; each page its own URL and canonical; sitemap for incremental loading | https://developers.google.com/search/docs/specialty/ecommerce/pagination-and-incremental-page-loading | 2026-09-02 |
+| Hreflang: three equivalent methods; return links required; x-default; language[-REGION]; EU/UN/UK ignored | https://developers.google.com/search/docs/specialty/international/localized-versions | 2026-09-02 |
+| International targeting report removed (September 2022); hreflang still supported | https://support.google.com/webmasters/answer/12474899 | 2026-09-02 |
+| Mueller (Jan 2022): Google cannot verify equivalence across hreflang versions; same-language variants weak | https://www.seroundtable.com/google-understand-content-equivalent-language-hreflang-32782.html | 2026-09-02 |
+| Mueller (May 2025): hreflang is a hint; canonical elsewhere voids it | https://www.searchenginejournal.com/google-reminds-that-hreflang-tags-are-hints-not-directives/546428/ | 2026-09-02 |
+| Local ranking: relevance, distance, prominence; links and reviews feed prominence; replies help | https://support.google.com/business/answer/7091 | 2026-09-02 |
+| Reviews: no incentives, no gating, no pressure on premises | https://support.google.com/business/answer/2622994 | 2026-09-02 |
+| Business Profile categories affect local ranking | https://support.google.com/business/answer/7249669 | 2026-09-02 |
+| LocalBusiness markup: name and address required; geo, telephone, openingHoursSpecification, url, priceRange recommended | https://developers.google.com/search/docs/appearance/structured-data/local-business | 2026-09-02 |
+| Mueller (2018): phone-number formatting consistency across directories is "futile" to require | https://www.seroundtable.com/google-phone-number-formats-26026.html | 2026-09-02 |
+| nofollow, ugc, sponsored are hints for ranking (Sept 2019) and for crawling since March 1 2020 | https://developers.google.com/search/blog/2019/09/evolving-nofollow-new-ways-to-identify | 2026-09-02 |
+| Mueller: nofollow is not a dampening factor, "the link has no value" | https://searchengineland.com/rel-nofollow-ugc-sponsored-links-seo-413534 | 2026-09-02 |
+| Disavow: "most sites will not need to use this tool"; only for many spammy links that caused or will cause a manual action | https://support.google.com/webmasters/answer/2648487 | 2026-09-02 |
+| Mueller (2020): unlinked citations help trust "usually not" | https://www.seroundtable.com/unlinked-citations-google-rankings-29490.html | 2026-09-02 |
+| Mueller (2022): no "SEO factor" tracking brand mentions; benefit is users finding the site | https://www.searchenginejournal.com/brand-mentions-googles-algorithm/439801/ | 2026-09-02 |
+| Illyes (2016): directories "very often not the right way to build links", manual actions exist | https://www.seroundtable.com/google-directories-links-22786.html | 2026-09-02 |
+| Mueller (2021): digital PR is not the spammy kind of link building | https://www.seroundtable.com/google-digital-public-relations-link-building-30810.html | 2026-09-02 |
+| Bing Webmaster Guidelines (2020 update, quoted): relevance, quality and credibility, user engagement, freshness, location, page load time; live page is a JS shell | https://searchengineland.com/bings-search-ranking-factors-relevance-quality-credibility-user-engagement-freshness-location-and-page-load-time-336924 | 2026-09-02 |
+| Bing Webmaster Tools AI Performance report (public preview, February 2026) | https://blogs.bing.com/webmaster/February-2026/Introducing-AI-Performance-in-Bing-Webmaster-Tools-Public-Preview | 2026-09-02 |
+| Bing Copilot Search cites publisher sources (April 2025) | https://blogs.bing.com/search/April-2025/Introducing-Copilot-Search-in-Bing | 2026-09-02 |
+| IndexNow: "does not guarantee immediate indexing"; 10,000 URLs per POST; key file; shared across engines | https://www.indexnow.org/faq | 2026-09-02 |
+| Ahrefs (300,000 keywords, desktop GSC data, Feb 2026): AI Overview correlates with 58 % lower position-1 CTR; 0.073 vs 0.016 in December 2025 | https://ahrefs.com/blog/ai-overviews-reduce-clicks-update/ | 2026-09-02 |
+| Seer Interactive (3,119 terms, 42 organisations, Sept 2025): organic CTR on AI Overview queries down 61 %; cited brands +35 % CTR | https://www.seerinteractive.com/insights/aio-impact-on-google-ctr-september-2025-update | 2026-09-02 |
+| Seer Interactive (53 brands, 5.47M queries, Feb 2026): rebound to 2.4 %; cited +120 % vs uncited | https://www.seerinteractive.com/insights/aio-impact-on-google-ctr-2026-update | 2026-09-02 |
+| Pew (900 US adults, 68,879 searches, March 2025): 8 % click with AI summary vs 15 % without | https://www.pewresearch.org/short-reads/2025/07/22/google-users-are-less-likely-to-click-on-links-when-an-ai-summary-appears-in-the-results/ | 2026-09-02 |
+| Sistrix (100M German keywords, 2026): AI Overviews on just over 20 % of keywords; position-1 CTR 27 % overall, 11 % with AI Overview | https://www.sistrix.com/blog/ai-overviews-in-germany/ | 2026-09-02 |
+| Mueller (Sept 2025): several pages in one result "doesn't seem problematic ... just because it's more than 1" | https://www.searchenginejournal.com/google-answers-seo-question-about-keyword-cannibalization/556472/ | 2026-09-02 |
+| Duplicates: Google consolidates signals "into a single, preferred URL" | https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls | 2026-09-02 |
+| Statcounter Germany, August 2026 (page-view tracking): Google 88.5 %, Bing 5.8 %, Yahoo 1.6 %, DuckDuckGo 1.2 %, Ecosia 1.0 %; desktop Bing 12.8 %, mobile Bing 0.5 % | https://gs.statcounter.com/search-engine-market-share/all/germany | 2026-09-02 |
+| AI Overviews in Germany since March 25 2025 (signed-in users 18+) | https://blog.google/feed/were-bringing-the-helpfulness-of-ai-overviews-to-more-countries-in-europe/ | 2026-09-02 |
+| AI Mode (KI-Modus) in Germany, Austria, Switzerland since October 8 2025 | https://blog.google/intl/de-de/produkte/suchen-entdecken/ki-modus-startet-in-dach/ | 2026-09-02 |
+| Search Console Domain property verifies by DNS record only (TXT with host blank or `@`, CNAME variant); URL-prefix property by HTML file, HTML tag, Google Analytics, Google Tag Manager; manual DNS records "can take up to two or three days"; several methods may coexist | https://support.google.com/webmasters/answer/9008080 | 2026-09-02 |
+| Sitemap submission at search.google.com/search-console/sitemaps via "Add a new sitemap"; statuses Success, Couldn't fetch, Has errors, Unknown; failed fetches retried "for a few days, and then stop"; resubmit only after significant changes | https://support.google.com/webmasters/answer/7451001 | 2026-09-02 |
+| Bing Webmaster Tools: My Sites → Import → sign in with Google → Allow → select → Import; imported sites arrive verified with sitemaps; up to 48 hours for traffic data; up to 100 sites per import, 1,000 per account; ownership re-synced with Search Console | https://blogs.bing.com/webmaster/september-2019/Import-sites-from-Search-Console-to-Bing-Webmaster-Tools | 2026-09-02 |
+| IndexNow key 8–128 characters (a-z, A-Z, 0-9, dash) hosted as `/<key>.txt` or via `keyLocation`; GET and POST (up to 10,000 URLs) endpoints; 200 submitted, 202 key validation pending, 400, 403 key invalid, 422 URL not on host, 429 too many; api.indexnow.org shares with all participating engines | https://www.indexnow.org/documentation | 2026-09-02 |
+| Google's named causes of traffic drops: technical issues, security threats, spam violations, algorithmic updates, seasonality and changing interests, site migrations; check "Last 16 months", Compare "last 3 months year over year", Pages table for sitewide vs page | https://developers.google.com/search/docs/monitor-debug/debugging-search-traffic-drops | 2026-09-02 |
+| Google Search Status Dashboard, Ranking history: announced core and spam updates with dates (latest checked: August 2026 spam update, 18 Aug 2026) | https://status.search.google.com/products/rGHU1u87FJnkP6W2GwMi/history | 2026-09-02 |
+| Codex discovers skills in `.agents/skills` from the working directory up to the repo root, `$HOME/.agents/skills`, `/etc/codex/skills`; `agents/openai.yaml` with `interface` and `policy.allow_implicit_invocation` (default true; false keeps explicit `$skill` invocation); implicit matching depends on `description` | https://learn.chatgpt.com/docs/build-skills | 2026-09-02 |
+| Claude Code project skills in `.claude/skills/<name>/SKILL.md`; frontmatter `disable-model-invocation`, `user-invocable`, `argument-hint`, `when_to_use`; description plus when_to_use truncated at 1,536 characters | https://code.claude.com/docs/en/skills | 2026-09-02 |
+| Claude Code reads `CLAUDE.md`, not `AGENTS.md`; `@AGENTS.md` import or a symlink shares one file; imports load at launch, max depth four | https://code.claude.com/docs/en/memory | 2026-09-02 |
+| Domain property "includes all subdomains (m, www, and so on) and multiple protocols (http, https, ftp)"; URL-prefix property only URLs with the specified prefix including protocol | https://support.google.com/webmasters/answer/34592 | 2026-09-02 |
+
+## Heuristics, not facts
+
+Title about 60 characters, meta 120–160, slug 3–6 words, thin under 300 characters, TTFB warning at 2.5 s, impressions threshold 50, decay at 30 % loss, 4 weeks before merge/410, one H1 per page, 7-day follow-up, listicle 7–12 items, thread 5–8 posts, launch with 10–30 pages, the expected-CTR curve and its `--expected-ctr-1` scaling, the GSC regex patterns in export-howto, the error-word list behind `body.error-text`, "90 % identical lastmod" as the threshold for `site.sitemap-lastmod`, "first image is the LCP element" behind `img.lcp-lazy`, NAP accuracy for local listings, unlinked mentions as PR rather than ranking, press-release links as advertising (Mueller 2013, paraphrased), digital PR as the safe form of link earning, "brand cited in an AI Overview" as a CTR lever beyond the one Seer study. Adjust from the site's own data.
+
+## Reported, unverified (kept out of the skills)
+
+First link priority; "internal links are the most important links" (Illyes); Wikidata entry in sameAs helps knowledge panels; Perplexity reads llms.txt; NAP formatting consistency as a ranking factor; Bing social signals, exact-match domains, page age; a measured IndexNow latency gain; video carousel share of SERPs (seoClarity); Mueller "cannibalization dilutes" quote; a 2026 reversal of Reddit's visibility; third-party scripts as a named INP cause in web.dev's INP article; "view all" pages in current pagination guidance. Re-check before use.

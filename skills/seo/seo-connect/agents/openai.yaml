@@ -1,0 +1,5 @@
+interface:
+  display_name: "SEO connect"
+  short_description: "Wizard: Search Console, sitemap, Bing, IndexNow"
+policy:
+  allow_implicit_invocation: false

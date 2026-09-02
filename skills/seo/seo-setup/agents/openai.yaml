@@ -1,0 +1,5 @@
+interface:
+  display_name: "SEO setup"
+  short_description: "Scaffold the SEO workspace for a repo"
+policy:
+  allow_implicit_invocation: false

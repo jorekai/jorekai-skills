@@ -1,0 +1,5 @@
+interface:
+  display_name: "SEO"
+  short_description: "Router for the SEO skill set"
+policy:
+  allow_implicit_invocation: false
