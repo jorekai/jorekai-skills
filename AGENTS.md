@@ -8,3 +8,7 @@ Skills live under `skills/<theme>/<skill>/`; `README.md` explains the layout and
 - Test a script before editing the SKILL.md that calls it: `python3 skills/seo/seo-tech-audit/scripts/test_audit.py` (offline) and `python3 skills/seo/seo-tech-audit/scripts/audit.py https://example.com`, `python3 skills/seo/seo-gsc-review/scripts/gsc_opportunities.py --help`, `python3 skills/seo/seo-setup/scripts/scaffold.py --root /tmp/x example.com`, `bash -n skills/seo/seo-connect/templates/wizard.sh`. Scripts stay Python stdlib or bash.
 - Every line in a SKILL.md must change behaviour; what the model does anyway goes. Steps end on a completion criterion; reference material sits behind a pointer, not inline.
 - A new skill is user-invoked (`disable-model-invocation: true` plus `policy.allow_implicit_invocation: false` in `agents/openai.yaml`) unless the agent must reach it on its own; then it gets a model-facing `description` with one trigger per branch. Every skill has `agents/openai.yaml`.
+
+## SEO
+
+SEO workspace: `docs/seo/README.md` (layout, log format). Domains: example-bootsschule.de. Read `docs/seo/<domain>/config.md` before running any `seo-*` skill; every change to the site gets a row in `docs/seo/<domain>/log/`.
