@@ -25,10 +25,12 @@ if (( $# )); then
 fi
 (( ${#srcs[@]} )) || { echo "nothing matched" >&2; exit 1; }
 
+# Links are relative so a clone on another machine (or a different checkout path) still resolves them.
 for dest in "$repo/.claude/skills" "$repo/.agents/skills"; do
   mkdir -p "$dest"
   for s in "${srcs[@]}"; do
-    ln -sfn "$s" "$dest/$(basename "$s")"
-    echo "linked $(basename "$s") -> $dest/$(basename "$s")"
+    rel="$(python3 -c 'import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))' "$s" "$dest")"
+    ln -sfn "$rel" "$dest/$(basename "$s")"
+    echo "linked $(basename "$s") -> $dest/$(basename "$s") ($rel)"
   done
 done

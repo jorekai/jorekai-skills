@@ -22,7 +22,7 @@ Needs the workspace from `seo-setup` (`config.md` with `canonical_host`, `sitema
    - AI-search crawlers: `robots.txt` matches `ai_search_bots` in `config.md`; fix the file if it does not.
    Done when each check passed or is listed as a stage the human must finish.
 
-3. **Author the wizard.** Copy `templates/wizard.sh` to `docs/seo/<domain>/connect.sh`, set `CONNECTIONS`, replace the example stage with one `stage` per approved step in the order of stages.md, and set `TOTAL_STAGES`. Use only the library helpers (`stage`, `say`, `step`, `note`, `open_url`, `pause`, `confirm`, `ask`, `record`, `skip`, `http_status`, `today`). The library above the marker stays byte-identical.
+3. **Author the wizard.** Copy `templates/wizard.sh` to `docs/seo/<domain>/connect.sh`, set `CONNECTIONS`, replace the example stage with one `stage` per approved step in the order of stages.md, and set `TOTAL_STAGES`. Use only the library helpers (`stage`, `say`, `step`, `note`, `open_url`, `pause`, `confirm`, `ask`, `record`, `skip`, `http_status`, `today`). Fork on `confirm` and derive the recorded values from the choice; `ask` only for a value the agent cannot derive, never two `ask` prompts in a row (people answer the wrong one). The library above the marker stays byte-identical.
    Done when `bash -n docs/seo/<domain>/connect.sh` passes and every key named in step 1 is recorded by exactly one stage.
 
 4. **Hand over.** `chmod +x`, then tell the user to run it:

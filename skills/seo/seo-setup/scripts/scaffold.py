@@ -41,6 +41,9 @@ def create(root, domain):
     base = root / domain
     for d in DIRS:
         (base / d).mkdir(parents=True, exist_ok=True)
+        keep = base / d / ".gitkeep"
+        if d != "exports" and not keep.exists():
+            keep.write_text("", encoding="utf-8")   # git does not track empty directories
     gi = base / "exports" / ".gitignore"
     if not gi.exists():
         gi.write_text("*\n!.gitignore\n", encoding="utf-8")

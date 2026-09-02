@@ -25,7 +25,7 @@ Scaffold the workspace every other `seo-*` skill reads and writes. Prompt-driven
    - The unknown keys from step 1.
    - Search Console calibration: `brand_regex` (brand plus misspellings), `expected_ctr_1` (0.11 until an export says otherwise), `min_impressions`.
    - Crawler policy: recommend allowing `OAI-SearchBot`, `PerplexityBot`, `Bingbot`, `Claude-SearchBot`, `Google-Extended` (citations in ChatGPT search, Perplexity, Copilot, Claude, Gemini grounding); training bots are the owner's call.
-   - Pointer file. Both `CLAUDE.md` and `AGENTS.md` exist: edit both. Only `AGENTS.md`: propose a `CLAUDE.md` containing `@AGENTS.md` (Claude Code reads `CLAUDE.md`, not `AGENTS.md`; the import shares one file). Neither: create `AGENTS.md` with the block and `CLAUDE.md` with `@AGENTS.md`.
+   - Pointer file. `CLAUDE.md` is only `@AGENTS.md` (plus blank lines): edit `AGENTS.md` alone, the import carries the block. Both exist with own content: edit both. Only `AGENTS.md`: propose a `CLAUDE.md` containing `@AGENTS.md` (Claude Code reads `CLAUDE.md`, not `AGENTS.md`; the import shares one file). Neither: create `AGENTS.md` with the block and `CLAUDE.md` with `@AGENTS.md`.
    - `exports/` is git-ignored by the scaffold; ask only if the repo tracks `docs/` with a custom ignore scheme.
    Done when every value is confirmed or explicitly left blank.
 

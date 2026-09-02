@@ -105,14 +105,28 @@ TOTAL_STAGES=1
 banner "Connect DOMAIN"
 
 stage "Example: Search Console property"
-open_url "https://search.google.com/search-console/welcome"
-step "Add property > Domain > enter DOMAIN"
-step "Copy the TXT record, add it at your DNS provider (host blank or @), come back, click Verify"
-pause "Press Enter when Search Console shows the property as verified"
-ask GSC_PROPERTY "Property as shown in Search Console (e.g. sc-domain:DOMAIN):"
-record GSC_PROPERTY "$GSC_PROPERTY"
-record GSC_PROPERTY_TYPE "domain"
-record GSC_VERIFICATION "dns-txt"
-record GSC_VERIFIED_AT "$(today)"
+# Ask only what the agent cannot derive: one choice per fork, then derive the recorded values.
+# Three free-text prompts in a row make people answer the wrong one.
+open_url "https://search.google.com/search-console"
+if confirm "Is a property for DOMAIN already listed in the property selector?"; then
+  if confirm "Is it a Domain property (sc-domain:DOMAIN, not a URL)?"; then
+    record GSC_PROPERTY "sc-domain:DOMAIN"; record GSC_PROPERTY_TYPE "domain"; record GSC_VERIFICATION "dns-txt"
+  else
+    record GSC_PROPERTY "https://DOMAIN/"; record GSC_PROPERTY_TYPE "url-prefix"
+    ask GSC_VERIFICATION "Method shown under Settings > Ownership verification (html-tag, html-file, analytics, tag-manager):"
+    record GSC_VERIFICATION "$GSC_VERIFICATION"
+  fi
+  record GSC_VERIFIED_AT "$(today) (existing property, recorded today)"
+else
+  open_url "https://search.google.com/search-console/welcome"
+  step "Add property > Domain > enter DOMAIN"
+  step "Copy the TXT record, add it at your DNS provider (host blank or @), come back, click Verify"
+  if confirm "Does Search Console show the property as verified?"; then
+    record GSC_PROPERTY "sc-domain:DOMAIN"; record GSC_PROPERTY_TYPE "domain"
+    record GSC_VERIFICATION "dns-txt"; record GSC_VERIFIED_AT "$(today)"
+  else
+    skip "Search Console: verify the domain property once the TXT record is served, then re-run"
+  fi
+fi
 
 finish
