@@ -31,4 +31,7 @@ Q3. <title>: <question, with the options where there are options>
 2. **Rounds** until the frontier is empty. Every branch of the tree visited; nothing silently assumed.
    Done when every `strategy.md` section has content or an explicit "none" with the reason, the keyword table has a primary query and a priority per cluster, the evidence inventory has at least three rows or says "none yet", and the glossary has the terms every cluster title uses.
 
-3. **Close.** Show the user the keyword table sorted by priority and the open-questions list, and name the first cluster to hand to `seo-content`. No log row: the site did not change.
+3. **Check the URLs.** Every money page and cluster URL written into `strategy.md` is fetched once: `curl -sIL -A Mozilla URL | grep -E '^(HTTP|location)'`. A URL that redirects or 404s is replaced by the final URL or marked "planned" in the table; a page the site describes as a money page but redirects to a product URL means the product URL is the money page.
+   Done when every URL in `strategy.md` returns 200 on its own address or carries "planned".
+
+4. **Close.** Show the user the keyword table sorted by priority and the open-questions list, and name the first cluster to hand to `seo-content`. No log row: the site did not change.

@@ -64,10 +64,22 @@
 ## crawl.*
 
 - `crawl.broken-link`: Fix or remove the link; 301 the old URL if it had traffic or links.
-- `crawl.redirected-link`: Point internal links at the final URL.
+- `crawl.redirected-link`: Point internal links at the final URL. Links into the cart or checkout are not reported here (see `crawl.cart-links`).
+- `crawl.tracking-params`: Remove `utm_*`, `gclid`, and similar parameters from links to the site's own pages; internal traffic is visible in analytics by referrer or page path. Where a campaign tag on an internal link is unavoidable, the target's self-referencing canonical must be the clean URL (it usually is; the parameter still costs crawl budget).
+- `crawl.cart-links`: informational. Cart, checkout, and account URLs are `noindex` by design and never crawled by the script.
 - `crawl.duplicate-title` / `crawl.duplicate-description`: Unique per page. Template pages need the distinguishing entity (product name, city, category) in title and description. Paginated series (reported as INFO): add the page number. URLs that are `noindex` or canonicalize elsewhere are excluded (`crawl.non-indexable` counts them).
 - `crawl.non-indexable`: informational. Many such URLs (cart, add-to-cart, tracking parameters) linked from content waste crawl on a large site; on a small site ignore.
 - `crawl.canonical`: Self-referencing canonical on every indexable page; see `head.canonical`.
 - `crawl.h1`: See `body.h1`. Informational.
 - `crawl.orphans`: Add at least one contextual internal link to each orphan from a related page, or remove the orphan from the sitemap if it should not rank. Google: "Every page you care about should have a link from at least one other page on your site"; sitemaps are the second discovery path after links (Illyes, 2019).
-- `crawl.not-in-sitemap`: Add crawled indexable pages to the sitemap, or `noindex` them if they are utility pages.
+- `crawl.not-in-sitemap`: Add crawled indexable pages to the sitemap, or `noindex` them if they are utility pages. URLs with tracking parameters in this list are a `crawl.tracking-params` finding, not a sitemap gap.
+
+## Hosted CMS: WordPress with Rank Math
+
+For sites the repository does not contain. Every step names the admin screen so the user can apply it without searching; verify afterwards with the script.
+
+- Title or meta description of one page/post/product (`head.title`, `head.meta-description`, `crawl.duplicate-*`): edit the post, open the Rank Math SEO meta box below or beside the editor, change title and description there. The exact button labels vary by editor and version (heuristic; not verified against a current screenshot).
+- Archive and pagination titles (`crawl.duplicate-title` on `/blog/page/N/`): Rank Math SEO → Titles & Meta, the archive type's title template. Rank Math variables: `%page%` renders "Page N" only on page 2 and later, `%pagenumber%` the current number, `%pagetotal%` the total, `%sep%` the separator, `%sitename%` the site name.
+- Redirects and removals (`crawl.broken-link`, `crawl.redirected-link`, `http.redirect-chain`): Rank Math SEO → Redirections (module must be enabled under Rank Math SEO → Dashboard → Modules, Advanced Mode). Types offered: 301, 302, 307, and the maintenance codes 410 (content deleted, no replacement) and 451. Prefer editing the link in the content over adding a redirect; a redirect is for URLs with external links or traffic.
+- Broken internal links: WordPress has no built-in link report. Take the `crawl.broken-link` list from the JSON, open each source page, replace the href.
+- Sitemap membership (`crawl.not-in-sitemap`, `crawl.orphans`): Rank Math SEO → Sitemap Settings decides which post types and taxonomies are included; a single URL is excluded via `noindex` in its meta box (Rank Math drops `noindex` URLs from the sitemap).

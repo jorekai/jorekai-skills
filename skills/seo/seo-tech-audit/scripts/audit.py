@@ -7,6 +7,11 @@ compares against a browser user agent to detect JS-only content.
 Usage:
   audit.py URL [--crawl N] [--timeout S] [--delay S] [--json]
 
+A crawl costs about one second per page (fetch plus --delay); run large crawls
+in the background and write --json to a file. Cart, checkout, and account URLs
+are counted but not fetched; tracking parameters are stripped before a URL is
+queued and reported under crawl.tracking-params.
+
 Exit code 0 always; findings are in the report, not the exit status.
 """
 import argparse
@@ -27,6 +32,10 @@ UA_BOT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.htm
 UA_BROWSER = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
               "(KHTML, like Gecko) Chrome/124.0 Safari/537.36")
 MAX_BODY = 3_000_000
+# Query parameters that only track a click. An internal link carrying one creates a URL variant.
+TRACKING_PARAMS = re.compile(r"^(utm_\w+|gclid|gbraid|wbraid|fbclid|msclkid|dclid|mc_cid|mc_eid|_ga|_gl|ref|source)$", re.I)
+# Cart, checkout, and account URLs (WooCommerce English and German slugs, Shopify, generic). Never indexable, never worth a fetch.
+CART_RE = re.compile(r"[?&](add-to-cart|remove_item|wc-ajax|undo_item)=|/(cart|checkout|basket|my-account|warenkorb|kasse|mein-konto)(/|$)", re.I)
 # English and German stopwords; the audit is used on sites in both languages.
 STOPWORDS = set("a an the and or of for to in on with vs versus your my is are how what why "
                 "best top guide de der die das und für mit von im am zu ein eine".split())
@@ -205,6 +214,19 @@ def norm(url):
     return urllib.parse.urlunsplit((u.scheme.lower(), u.netloc.lower(), path, u.query, ""))
 
 
+def strip_tracking(url):
+    """Return the URL without tracking parameters (utm_*, gclid, fbclid, ...), other parameters kept."""
+    u = urllib.parse.urlsplit(url)
+    if not u.query:
+        return url
+    kept = [(k, v) for k, v in urllib.parse.parse_qsl(u.query, keep_blank_values=True) if not TRACKING_PARAMS.match(k)]
+    return urllib.parse.urlunsplit((u.scheme, u.netloc, u.path, urllib.parse.urlencode(kept), u.fragment))
+
+
+def is_cart(url):
+    return bool(CART_RE.search(url))
+
+
 def same_site(a, b):
     ha = urllib.parse.urlsplit(a).netloc.lower().removeprefix("www.")
     hb = urllib.parse.urlsplit(b).netloc.lower().removeprefix("www.")
@@ -219,8 +241,12 @@ class Report:
     def __init__(self):
         self.items = []  # (section, level, check_id, message)
 
-    def add(self, section, level, cid, msg):
-        self.items.append({"section": section, "level": level, "id": cid, "message": msg})
+    def add(self, section, level, cid, msg, data=None):
+        """data: the full list behind a message that shows only examples; printed by --json."""
+        item = {"section": section, "level": level, "id": cid, "message": msg}
+        if data is not None:
+            item["data"] = data
+        self.items.append(item)
 
     def counts(self):
         return Counter(i["level"] for i in self.items)
@@ -541,10 +567,13 @@ def crawl(start_final, limit, rep, timeout, delay, urls_in_sitemap):
     seen = {norm(start_final): start_final}
     q = deque([start_final])
     pages = {}  # final_url -> dict(title, desc, canonical, status)
+    pages_seen = set()  # norm(final_url), so one page parsed twice via redirects counts once
     link_targets = Counter()
     link_sources = {}  # norm(target) -> first page linking to it
     redirected_links = {}
     broken = {}
+    tracking_links = []  # (source page, href with tracking parameters)
+    cart_links = Counter()  # cart/checkout targets, not fetched
     while q and len(pages) < limit:
         url = q.popleft()
         r = fetch(url, UA_BOT, timeout, delay=delay)
@@ -561,6 +590,9 @@ def crawl(start_final, limit, rep, timeout, delay, urls_in_sitemap):
         final = r["final_url"]
         if not same_site(final, start_final):
             continue  # redirected off-site: not our page
+        if norm(final) in pages_seen:
+            continue  # a redirect landed on a page already parsed (e.g. host vs host/)
+        pages_seen.add(norm(final))
         p = parse(r["body"], final)
         pages[final] = {"title": p.title, "desc": p.metas.get("description"),
                         "canonical": p.canonicals[0] if p.canonicals else None,
@@ -571,6 +603,13 @@ def crawl(start_final, limit, rep, timeout, delay, urls_in_sitemap):
             href = href.split("#")[0]
             if re.search(r"\.(png|jpe?g|gif|svg|webp|pdf|zip|mp4|css|js|ico|xml)$", href, re.I) or "/cdn-cgi/" in href:
                 continue
+            if is_cart(href):
+                cart_links[norm(href)] += 1
+                continue
+            clean = strip_tracking(href)
+            if clean != href:
+                tracking_links.append((final, href))
+                href = clean
             link_targets[norm(href)] += 1
             link_sources.setdefault(norm(href), final)
             if norm(href) not in seen:
@@ -581,8 +620,25 @@ def crawl(start_final, limit, rep, timeout, delay, urls_in_sitemap):
             f"Crawled {len(pages)} pages" + (f" (limit hit, {len(q)} URLs left in queue, orphan check skipped)" if truncated else " (site exhausted)"))
     for url, status in list(broken.items())[:30]:
         rep.add("Crawl", "FAIL", "crawl.broken-link", f"Internal link target {url} -> {status} (linked from {link_sources.get(norm(url), '?')})")
+    if len(broken) > 30:
+        rep.add("Crawl", "FAIL", "crawl.broken-link", f"{len(broken) - 30} more broken link targets not listed (full list in --json)",
+                data=[{"link": u, "status": st, "from": link_sources.get(norm(u))} for u, st in broken.items()])
+    redirected_links = {s: d for s, d in redirected_links.items() if not is_cart(d)}  # a shortlink into the cart is a cart link
     for src, dst in list(redirected_links.items())[:30]:
         rep.add("Crawl", "WARN", "crawl.redirected-link", f"Internal link points at redirecting URL {src} -> {dst} (link the final URL; linked from {link_sources.get(norm(src), '?')})")
+    if len(redirected_links) > 30:
+        rep.add("Crawl", "INFO", "crawl.redirected-link", f"{len(redirected_links) - 30} more redirecting link targets not listed (full list in --json)",
+                data=[{"link": s, "final": d, "from": link_sources.get(norm(s))} for s, d in redirected_links.items()])
+    if tracking_links:
+        pages_with = sorted({src for src, _ in tracking_links})
+        rep.add("Crawl", "WARN", "crawl.tracking-params",
+                f"{len(tracking_links)} internal links carry tracking parameters (utm_*, gclid, ...), e.g. {[h for _, h in tracking_links[:3]]}. "
+                f"Each variant can be crawled and indexed as a duplicate of the clean URL; link the clean URL and measure in analytics by referrer. Linked from {len(pages_with)} page(s)",
+                data=[{"from": s, "link": h} for s, h in tracking_links])
+    if cart_links:
+        rep.add("Crawl", "INFO", "crawl.cart-links",
+                f"{sum(cart_links.values())} links to {len(cart_links)} cart/checkout/account URLs not crawled (noindex by design)",
+                data=sorted(cart_links))
     indexable = {u: v for u, v in pages.items()
                  if not v["noindex"] and (not v["canonical"] or norm(v["canonical"]) == norm(u))}
     skipped = len(pages) - len(indexable)
@@ -594,33 +650,35 @@ def crawl(start_final, limit, rep, timeout, delay, urls_in_sitemap):
             urls = [u for u, v in indexable.items() if v["title"] == t][:5]
             paginated = all(re.search(r"(?:[?&]page=|/page/|/seite/)\d+", u) for u in urls[1:])
             rep.add("Crawl", "INFO" if paginated else "WARN", "crawl.duplicate-title",
-                    f"{n} pages share title “{t}”: {urls}" + (" (paginated series: add the page number to the title)" if paginated else ""))
+                    f"{n} pages share title “{t}”: {urls}" + (" (paginated series: add the page number to the title)" if paginated else ""),
+                    data=[u for u, v in indexable.items() if v["title"] == t])
     by_desc = Counter(v["desc"] for v in indexable.values() if v["desc"])
     for d, n in by_desc.items():
         if n > 1:
             urls = [u for u, v in indexable.items() if v["desc"] == d][:5]
             paginated = all(re.search(r"(?:[?&]page=|/page/|/seite/)\d+", u) for u in urls[1:])
-            rep.add("Crawl", "INFO" if paginated else "WARN", "crawl.duplicate-description", f"{n} pages share the same meta description: {urls}")
+            rep.add("Crawl", "INFO" if paginated else "WARN", "crawl.duplicate-description", f"{n} pages share the same meta description: {urls}",
+                    data=[u for u, v in indexable.items() if v["desc"] == d])
     no_canon = [u for u, v in pages.items() if not v["canonical"] and not v["noindex"]]
     if no_canon:
-        rep.add("Crawl", "FAIL", "crawl.canonical", f"{len(no_canon)} crawled pages without canonical, e.g. {no_canon[:5]}")
+        rep.add("Crawl", "FAIL", "crawl.canonical", f"{len(no_canon)} crawled pages without canonical, e.g. {no_canon[:5]}", data=no_canon)
     pag = [u for u, v in pages.items() if v["canonical"] and norm(v["canonical"]) != norm(u)
            and (m := re.search(r"(?:[?&]page=|/page/|/seite/)(\d+)", u)) and int(m.group(1)) >= 2]
     if pag:
         rep.add("Crawl", "WARN", "crawl.pagination-canonical", f"{len(pag)} paginated pages canonicalize elsewhere (Google: each page keeps its own canonical), e.g. {pag[:3]}")
-    multi_h1 = [u for u, v in pages.items() if v["h1"] != 1]
+    multi_h1 = [u for u, v in indexable.items() if v["h1"] != 1]
     if multi_h1:
-        rep.add("Crawl", "INFO", "crawl.h1", f"{len(multi_h1)} pages with zero or multiple H1, e.g. {multi_h1[:5]}")
+        rep.add("Crawl", "INFO", "crawl.h1", f"{len(multi_h1)} indexable pages with zero or multiple H1, e.g. {multi_h1[:5]}", data=multi_h1)
     if urls_in_sitemap:
         crawled = {norm(u) for u in pages}
         orphans = [x for x in urls_in_sitemap if norm(x) not in crawled and norm(x) not in link_targets]
         if orphans and not truncated:
-            rep.add("Crawl", "WARN", "crawl.orphans", f"{len(orphans)} sitemap URLs have no internal link pointing at them, e.g. {orphans[:5]}")
+            rep.add("Crawl", "WARN", "crawl.orphans", f"{len(orphans)} sitemap URLs have no internal link pointing at them, e.g. {orphans[:5]}", data=orphans)
         elif not orphans and not truncated:
             rep.add("Crawl", "PASS", "crawl.orphans", "every sitemap URL is internally linked")
         not_in_map = [u for u in pages if norm(u) not in {norm(x) for x in urls_in_sitemap} and not pages[u]["noindex"]]
         if not_in_map:
-            rep.add("Crawl", "INFO", "crawl.not-in-sitemap", f"{len(not_in_map)} crawled pages missing from the sitemap, e.g. {not_in_map[:5]}")
+            rep.add("Crawl", "INFO", "crawl.not-in-sitemap", f"{len(not_in_map)} crawled pages missing from the sitemap, e.g. {not_in_map[:5]}", data=not_in_map)
 
 # --------------------------------------------------------------------------- main
 
@@ -661,9 +719,11 @@ def main():
         if a.crawl:
             crawl(final, a.crawl, rep, a.timeout, a.delay, sitemap)
     if a.json:
-        print(json.dumps({"url": url, "final_url": final, "counts": rep.counts(), "items": rep.items}, indent=2))
+        print(json.dumps({"url": url, "final_url": final, "counts": rep.counts(), "items": rep.items}, indent=2, ensure_ascii=False))
     else:
         print(render(rep, url))
+    if a.crawl and not a.json:
+        print("Full lists (every broken link, duplicate, orphan) are in the --json output.", file=sys.stderr)
 
 
 if __name__ == "__main__":

@@ -19,6 +19,7 @@ Working files for search work on this repository. One folder per canonical host.
 - `briefs/<slug>.md`: per-page brief from `seo-content` (target query, SERP recon, outline, evidence answers).
 - `drafts/<slug>.md`: drafts before they move into the site's content directory.
 - `exports/`: Search Console exports, named `YYYY-MM-DD-<what>.zip` or `.csv`. Ignored by git.
+- `audits/`: full reports from `seo-tech-audit`, `YYYY-MM-DD-tech.json` (every list) and `.md` (the ranked summary). Log rows point here instead of repeating URLs.
 - `outreach.csv`: link targets from `seo-links` (`url, site, contact, why, status`).
 
 ## Log format

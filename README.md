@@ -51,10 +51,10 @@ flowchart TD
 
 | Step | Skill | Output | Why here |
 |---|---|---|---|
-| Set up | `seo-setup` | `docs/seo/<domain>/` with `config.md`, log, briefs, drafts, exports; pointer block in `AGENTS.md` and `CLAUDE.md` | Every later run starts warm: brand regex, CTR calibration, template paths are fixed. Several domains are several folders. |
+| Set up | `seo-setup` | `docs/seo/<domain>/` with `config.md`, log, briefs, drafts, exports, audits; pointer block in `AGENTS.md` and `CLAUDE.md` | Every later run starts warm: brand regex, CTR calibration, template paths are fixed. Several domains are several folders. |
 | Connect | `seo-connect` | `connect.sh`, a wizard that walks the human through the clicks and fills `connections.md` | Only a human can create the property, submit the sitemap, import into Bing, and place the IndexNow key. The wizard checks what it can check itself (sitemap 200, key file, IndexNow response). |
 | Understand | `seo-grill` | `strategy.md` (offer, audience, competitors, keyword clusters with priority, evidence inventory, constraints) and `glossary.md` | Facts are the agent's job (SERPs, export); decisions are the user's. Without an evidence inventory, drafts stay empty placeholders. |
-| Check | `seo-tech-audit` | Report with a fix per check id, applied in the template rather than described, `tech` row in the log | Nothing counts before the pages are indexable. |
+| Check | `seo-tech-audit` | Report with a fix per check id, applied in the template or written as CMS admin steps with the new value, full JSON in `audits/`, `tech` row in the log | Nothing counts before the pages are indexable. |
 | Pick | `seo-gsc-review` | First the verdict on due actions from earlier weeks, then one table: URL, query, action, expected gain; every accepted row goes to the log | Position 8–20 is closer to page 1 than any new article. Verdicts first, so the same action is never recommended twice. |
 | Write | `seo-content` | `briefs/<slug>.md`, `drafts/<slug>.md` with evidence slots, one round of questions to the author, on-page checklist | One page, one intent. What the author has not confirmed stays a slot and never becomes a sentence. |
 | Approve | `seo-review` | Two separate reports, each with a verdict: `ship` or `fix first` | A page can be right for the query and still unbacked, or the reverse. Separate axes cannot hide each other. |
@@ -98,7 +98,7 @@ Then run `/seo-setup` (Claude Code) or `$seo-setup` (Codex) in the repo. When a 
 
 ## Maintenance
 
-- Test scripts before editing the SKILL.md that calls them: `python3 skills/seo/seo-tech-audit/scripts/audit.py https://example.com`, `python3 skills/seo/seo-setup/scripts/scaffold.py --root /tmp/x example.com`, `bash -n skills/seo/seo-connect/templates/wizard.sh`.
+- Test scripts before editing the SKILL.md that calls them: `python3 skills/seo/seo-tech-audit/scripts/test_audit.py` (offline) and `python3 skills/seo/seo-tech-audit/scripts/audit.py https://example.com`, `python3 skills/seo/seo-setup/scripts/scaffold.py --root /tmp/x example.com`, `bash -n skills/seo/seo-connect/templates/wizard.sh`.
 - Every line in a SKILL.md must change behaviour; what the model does anyway goes.
 - The router must not lie: whoever adds, renames, or changes a sub-skill checks `skills/seo/seo/SKILL.md` and the table above in the same commit.
 - Years, tool names, platform behaviour, and Google features live only in `references/`; every such claim has a row in `skills/seo/seo/references/sources.md` with URL and check date. Unverified means: labelled as a heuristic, or removed.
