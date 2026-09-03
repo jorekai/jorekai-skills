@@ -98,6 +98,8 @@ scripts/link.sh <repo> seo-setup  # named skills, globs allowed
 
 Then run `/seo-setup` (Claude Code) or `$seo-setup` (Codex) in the repo. When a skill is stable: move it to `~/Developer/claude-skill-library/skills/` and distribute it with `link.sh` from `project-index`.
 
+The workspace belongs in the site's repository. A site that lives in no repository (a hosted CMS) keeps its workspace here: `docs/seo/example-bootsschule.de/` is that case, and the skills are linked into this repo's own `.claude/skills/` and `.agents/skills/`.
+
 ## Maintenance
 
 - Test scripts before editing the SKILL.md that calls them: `python3 skills/seo/seo-tech-audit/scripts/test_audit.py` (offline) and `python3 skills/seo/seo-tech-audit/scripts/audit.py https://example.com`, `python3 skills/seo/seo-gsc-review/scripts/test_gsc.py` (offline), `python3 skills/seo/seo-gsc-review/scripts/gsc_opportunities.py --help`, `python3 skills/seo/seo-setup/scripts/scaffold.py --root /tmp/x example.com`, `python3 skills/seo/seo-and-now/scripts/test_status.py` (offline), `python3 skills/seo/seo-gsc-review/scripts/snippets.py --help`, `bash -n skills/seo/seo-connect/templates/wizard.sh`, `bash -n skills/seo/seo-connect/scripts/indexnow.sh`.
