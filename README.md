@@ -111,7 +111,7 @@ The workspace belongs in the site's repository. A site that lives in no reposito
 
 ## Maintenance
 
-- `bash scripts/check_public.sh` before every commit: no private data, no em dashes, no filler words. Prints `ok` or one line per hit.
+- `bash scripts/check_public.sh` before every commit: no private data, no em dashes, no filler words. Prints `ok` or one line per hit. Customer names and domains to reject live in `.check_public.local` (gitignored, one regex per line), so the public script never names a customer.
 - Test scripts before editing the SKILL.md that calls them: `python3 skills/seo/tech-audit/scripts/test_audit.py` (offline) and `python3 skills/seo/tech-audit/scripts/audit.py https://example.com`, `python3 skills/seo/gsc-review/scripts/test_gsc.py` (offline), `python3 skills/seo/gsc-review/scripts/gsc_opportunities.py --help`, `python3 skills/seo/setup/scripts/scaffold.py --root /tmp/x example.com`, `python3 skills/seo/and-now/scripts/test_status.py` (offline), `python3 skills/seo/gsc-review/scripts/snippets.py --help`, `bash -n skills/seo/connect/templates/wizard.sh`, `bash -n skills/seo/connect/scripts/indexnow.sh`.
 - Every line in a SKILL.md must change behaviour; what the model does anyway goes.
 - The router must not lie: whoever adds, renames, or changes a sub-skill checks `skills/seo/seo/SKILL.md` and the table above in the same commit.

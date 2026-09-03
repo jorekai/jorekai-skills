@@ -9,8 +9,14 @@ hit() { echo "$1"; fail=1; }
 
 files=$(git ls-files | grep -v 'scripts/check_public.sh$')
 
-# Private data: customer domains and names, analytics ids, IndexNow key files, server paths, tracked workspaces.
-private='acme|G-[A-Z0-9]{8,}|[a-f0-9]{32}\.txt|/opt/plesk|--allow-root|ssh_host: [^(]'
+# Private data: analytics ids, IndexNow key files, server paths, tracked workspaces. Customer names and
+# domains come from .check_public.local (gitignored, one regex per line) so the public script never names them.
+private='G-[A-Z0-9]{8,}|[a-f0-9]{32}\.txt|/opt/plesk|--allow-root|ssh_host: [^(]'
+if [[ -f .check_public.local ]]; then
+  while IFS= read -r pat; do [[ -n "$pat" ]] && private="$private|$pat"; done < .check_public.local
+else
+  echo "warning: no .check_public.local (customer patterns), only generic checks run" >&2
+fi
 while IFS= read -r line; do hit "private: $line"; done < <(echo "$files" | xargs grep -nE "$private" 2>/dev/null)
 while IFS= read -r f; do hit "workspace tracked: $f"; done < <(echo "$files" | grep -E '^docs/seo/[^/]+/' )
 while IFS= read -r f; do hit "link tracked: $f"; done < <(echo "$files" | grep -E '^\.(agents|claude)/skills/')
