@@ -30,6 +30,14 @@ filler='\b(delve|leverage|seamless(ly)?|robust|crucial|game-changer|unlock|in to
 while IFS= read -r line; do hit "filler: $line"; done < <(echo "$style" | xargs grep -niE "$filler" 2>/dev/null)
 while IFS= read -r line; do hit "emoji: $line"; done < <(echo "$style" | xargs perl -ne 'print "$ARGV:$.:$_" if /[\x{1F300}-\x{1FAFF}\x{2600}-\x{27BF}]/; close ARGV if eof' 2>/dev/null)
 
+# Plugin version equals the top changelog entry; a version bump without a changelog line is a hit.
+pv=$(python3 -c 'import json;print(json.load(open(".claude-plugin/plugin.json"))["version"])')
+cv=$(grep -m1 -oE '^## [0-9]+\.[0-9]+\.[0-9]+' CHANGELOG.md | cut -c4-)
+[[ "$pv" == "$cv" ]] || hit "version: plugin.json says $pv, CHANGELOG.md top entry says $cv"
+
+# Sources older than 180 days are a warning, not a hit: refresh them when touching the skill.
+python3 scripts/sources_age.py --days 180 | sed 's/^/warning: stale source: /' | grep -v ': 0 row' >&2
+
 # Secret scan over the whole history when gitleaks is installed (CI always runs it).
 if command -v gitleaks >/dev/null; then
   gitleaks git . --no-banner --redact --exit-code 1 >/dev/null 2>&1 && echo "pass: gitleaks" || hit "gitleaks found a secret: run gitleaks git . --redact"
@@ -53,6 +61,7 @@ t python3 skills/seo/and-now/scripts/status.py --help
 t bash -n skills/seo/connect/templates/wizard.sh
 t bash -n skills/seo/connect/scripts/indexnow.sh
 t bash -n scripts/link.sh
+t python3 scripts/sources_age.py --help
 for f in $(git ls-files 'skills/*/*/agents/openai.yaml'); do t test -s "$f"; done
 for d in $(git ls-files 'skills/*/*/SKILL.md' | xargs -n1 dirname); do t test -f "$d/agents/openai.yaml"; done
 

@@ -1,7 +1,13 @@
 {
   "name": "jorekai",
-  "owner": { "name": "Nils Jorek", "url": "https://github.com/jorekai" },
-  "metadata": { "description": "Skills by Nils Jorek: one plugin per theme, jorekai-<theme>.", "version": "1.1.0" },
+  "owner": {
+    "name": "Nils Jorek",
+    "url": "https://github.com/jorekai"
+  },
+  "metadata": {
+    "description": "Skills by Nils Jorek: one plugin per theme, jorekai-<theme>.",
+    "version": "1.2.0"
+  },
   "plugins": [
     {
       "name": "jorekai-seo",

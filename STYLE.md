@@ -39,3 +39,5 @@ Rules for every file in this repository and for every agent or person who edits 
 - Conventional prefix: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`. Subject under 72 characters, imperative, no period.
 - Body says what changed and why, in the same style as this file.
 - Adding, renaming, or changing a sub-skill updates the theme's router `SKILL.md` and the tables in `README.md` in the same commit.
+- A release bumps `version` in `.claude-plugin/plugin.json` and adds the entry at the top of `CHANGELOG.md`: Added, Changed, Removed, one line each, no adjectives.
+- A rule change gets a file in `decisions/` that names the context, the decision, and the consequences.
