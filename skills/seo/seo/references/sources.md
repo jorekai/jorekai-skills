@@ -28,7 +28,7 @@ Claims in this skill set that rest on a documented fact, with the source and the
 | Google-Extended controls Gemini training and Gemini grounding (Gemini Apps, Vertex AI); no effect on Search inclusion or ranking; crawling happens as Googlebot | https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers | 2026-09-02 |
 | ChatGPT search retrieves through Bing; 87 % of sampled citations in Bing top 20 (Seer Interactive) | https://parse.gl/blog/bing-rankings-chatgpt-visibility | 2026-09-02 |
 | "Discovered – currently not indexed": crawl postponed to avoid overloading the site | https://www.conductor.com/academy/index-coverage/faq/discovered-not-indexed/ | 2026-09-02 |
-| Request-indexing quota about 10–12 URLs per property per day, unpublished | https://alevdigital.com/blog/google-search-console-request-indexing/ | 2026-09-02 |
+| Request-indexing quota about 10–12 URLs per property per day: third-party observation, Google publishes no number (see the 9012289 row); not quoted in the skills | https://alevdigital.com/blog/google-search-console-request-indexing/ | 2026-09-02 |
 | Organic CTR by position varies 19–40 % for position 1 across studies; AI Overviews reduce it | https://growthsrc.com/google-organic-ctr-study/ | 2026-09-02 |
 | Google's crawlers follow up to 10 redirect hops; soft 404 is a 2xx page whose content "suggests an error", an empty page, or an error message | https://developers.google.com/search/docs/crawling-indexing/http-network-errors | 2026-09-02 |
 | Mueller: keep redirect chains under 5 hops for frequently crawled URLs | https://www.searchenginejournal.com/googles-john-mueller-recommends-less-than-5-hops-per-redirect-chain/344664/ | 2026-09-02 |
@@ -137,6 +137,8 @@ Claims in this skill set that rest on a documented fact, with the source and the
 | Claude Code project skills in `.claude/skills/<name>/SKILL.md`; frontmatter `disable-model-invocation`, `user-invocable`, `argument-hint`, `when_to_use`; description plus when_to_use truncated at 1,536 characters | https://code.claude.com/docs/en/skills | 2026-09-02 |
 | Claude Code reads `CLAUDE.md`, not `AGENTS.md`; `@AGENTS.md` import or a symlink shares one file; imports load at launch, max depth four | https://code.claude.com/docs/en/memory | 2026-09-02 |
 | Domain property "includes all subdomains (m, www, and so on) and multiple protocols (http, https, ftp)"; URL-prefix property only URLs with the specified prefix including protocol | https://support.google.com/webmasters/answer/34592 | 2026-09-02 |
+| Cloudflare `cf-cache-status`: `HIT` found in cache; `MISS` eligible but not present, served from origin; `BYPASS` eligible by rule but the origin response was not cacheable; `DYNAMIC` not eligible, no cache lookup | https://developers.cloudflare.com/cache/concepts/cache-responses/ | 2026-09-03 |
+| URL Inspection "Request indexing": "There is a daily limit to how many index requests you can submit" (no number published); "does not guarantee that the page will appear in the Google Index"; sitemap recommended for many URLs | https://support.google.com/webmasters/answer/9012289 | 2026-09-03 |
 
 ## Heuristics, not facts
 
