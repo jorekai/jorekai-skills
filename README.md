@@ -107,10 +107,11 @@ scripts/link.sh <repo> setup      # named skills, globs allowed
 
 Then `$setup` (Codex) in the repo. When a skill is stable: move it to `~/Developer/claude-skill-library/skills/` and distribute it with `link.sh` from `project-index`.
 
-The workspace belongs in the site's repository. A site that lives in no repository (a hosted CMS) keeps its workspace here: `docs/seo/example-bootsschule.de/` is that case, and the skills are linked into this repo's own `.agents/skills/`.
+The workspace belongs in the site's repository. A site that lives in no repository (a hosted CMS) gets a small private repository of its own that holds only `docs/seo/`, the pointer block, and the Codex links. This collection is public and carries no workspace, key, ID, or customer data; `scripts/check_public.sh` enforces that before every commit.
 
 ## Maintenance
 
+- `bash scripts/check_public.sh` before every commit: no private data, no em dashes, no filler words. Prints `ok` or one line per hit.
 - Test scripts before editing the SKILL.md that calls them: `python3 skills/seo/tech-audit/scripts/test_audit.py` (offline) and `python3 skills/seo/tech-audit/scripts/audit.py https://example.com`, `python3 skills/seo/gsc-review/scripts/test_gsc.py` (offline), `python3 skills/seo/gsc-review/scripts/gsc_opportunities.py --help`, `python3 skills/seo/setup/scripts/scaffold.py --root /tmp/x example.com`, `python3 skills/seo/and-now/scripts/test_status.py` (offline), `python3 skills/seo/gsc-review/scripts/snippets.py --help`, `bash -n skills/seo/connect/templates/wizard.sh`, `bash -n skills/seo/connect/scripts/indexnow.sh`.
 - Every line in a SKILL.md must change behaviour; what the model does anyway goes.
 - The router must not lie: whoever adds, renames, or changes a sub-skill checks `skills/seo/seo/SKILL.md` and the table above in the same commit.
