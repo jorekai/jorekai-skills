@@ -1,12 +1,14 @@
 {
   "name": "jorekai",
-  "owner": { "name": "Nils Jorek" },
+  "owner": { "name": "Nils Jorek", "url": "https://github.com/jorekai" },
+  "metadata": { "description": "Skills by Nils Jorek: one plugin per theme, jorekai-<theme>.", "version": "1.1.0" },
   "plugins": [
     {
       "name": "jorekai-seo",
       "description": "SEO loop: setup, connect, grill, tech-audit, gsc-review, content, review, links, distribution, diagnose, and-now.",
       "source": "./",
-      "category": "productivity"
+      "category": "productivity",
+      "license": "MIT"
     }
   ]
 }

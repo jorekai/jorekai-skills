@@ -20,7 +20,7 @@ Question format, one per question:
 
 ```
 Q3. <title>: <question, with the options where there are options>
-→ Recommended: <answer and the one-line reason>
+Recommended: <answer and the one-line reason>
 ```
 
 ## Steps

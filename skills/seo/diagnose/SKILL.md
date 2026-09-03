@@ -5,7 +5,7 @@ description: Diagnose a drop in clicks, impressions, or position for a page, a q
 
 # SEO diagnose
 
-Six hypotheses, one change. The loop: **make it red → rank → test one at a time → one fix → verify date**. Reading the site to build a theory before the drop is visible in data is the failure this skill prevents.
+Six hypotheses, one change. The loop: **make it red, rank, test one at a time, one fix, verify date**. Reading the site to build a theory before the drop is visible in data is the failure this skill prevents.
 
 Reads `docs/seo/<domain>/config.md` and the log when the workspace exists; works without it.
 
@@ -14,7 +14,7 @@ Reads `docs/seo/<domain>/config.md` and the log when the workspace exists; works
 1. **Scope.** What dropped (clicks, impressions, position, CTR), where (site, page, query), since when, compared to what. The user's dashboard is not the evidence; Search Console is.
    Done when the claim reads like "clicks for /pricing fell from about 40 to about 12 a week since mid-August".
 
-2. **Make it red.** Reproduce the drop in Search Console data: Performance → Compare, the two ranges that bracket the change, filtered to the page or query; export both and save them to `exports/` as `YYYY-MM-DD-drop-<what>.csv`. Then write the red line: metric, before, after, the week it turned. Also record the shape: sitewide or one page; position moved or only CTR; impressions moved or only clicks. The shape ranks the hypotheses.
+2. **Make it red.** Reproduce the drop in Search Console data: Performance > Compare, the two ranges that bracket the change, filtered to the page or query; export both and save them to `exports/` as `YYYY-MM-DD-drop-<what>.csv`. Then write the red line: metric, before, after, the week it turned. Also record the shape: sitewide or one page; position moved or only CTR; impressions moved or only clicks. The shape ranks the hypotheses.
    Done when the red line exists with numbers from the export. If the export does not show the drop, stop and say so: the dashboard and Search Console disagree, and that is the finding.
 
 3. **Rank the six hypotheses** from [references/hypotheses.md](references/hypotheses.md) by fit to the shape, and state each one's prediction ("if this is the cause, then X in the data"). Show the ranking to the user before testing; they often know what changed (a deploy, a redesign, a migration).

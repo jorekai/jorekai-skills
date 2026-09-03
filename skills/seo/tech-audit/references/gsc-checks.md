@@ -2,7 +2,7 @@
 
 Ask for a screenshot or export of each; judge green / open.
 
-## Indexing → Pages
+## Indexing > Pages
 
 Every reason listed under "Not indexed" maps to one action:
 
@@ -24,7 +24,7 @@ Every reason listed under "Not indexed" maps to one action:
 
 Sitemaps section: status "Success", discovered URL count near the real page count. A feed URL (RSS or Atom) can be submitted as an extra sitemap for recent posts.
 
-## Experience → Core Web Vitals
+## Experience > Core Web Vitals
 
 Green thresholds at the 75th percentile: LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1. Mobile counts. Yellow or red on URL groups: run PageSpeed Insights on one URL from the group and fix the top diagnostic. Fix once per template, not per page.
 
@@ -53,9 +53,9 @@ Impressions of the site's links inside AI Overviews and AI Mode by page, country
 
 ## Video pages (only if the site embeds video)
 
-Indexing → Video pages lists indexed pages with an indexed video and pages whose video was not indexed, with the reason. Covers indexed pages only. Since 2023 video results need the video to be the page's main content; `VideoObject` markup belongs only on the page where the video plays.
+Indexing > Video pages lists indexed pages with an indexed video and pages whose video was not indexed, with the reason. Covers indexed pages only. Since 2023 video results need the video to be the page's main content; `VideoObject` markup belongs only on the page where the video plays.
 
-## Settings → Crawl stats (sites above ~1,000 URLs)
+## Settings > Crawl stats (sites above ~1,000 URLs)
 
 Response time stable, 5xx share near zero, crawl requests dominated by 200 HTML rather than redirects or 404s.
 

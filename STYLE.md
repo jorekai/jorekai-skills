@@ -1,0 +1,40 @@
+# Style
+
+Rules for every file in this repository and for every agent or person who edits it. Codex, Cursor, and Gemini read `AGENTS.md`; Claude Code reads `CLAUDE.md`, which imports it; both point here. `scripts/check.sh` enforces what a script can check and must print `ok` before a commit.
+
+## Language
+
+- English only: skill prose, references, templates, scripts, comments, commit messages, this file. German appears only as matching data for German-language sites (stopwords, soft-404 phrases, names of legal documents), inside a sentence that is English.
+- Simplified technical English: one idea per sentence, active voice, present tense, the verb early. Around 20 words per sentence; split anything longer.
+- Plain words. Say "use", not "leverage"; "big", not "extensive"; "fix", not "implement a solution for".
+
+## Forbidden
+
+- Em dashes. Use a comma, a colon, or a new sentence. An en dash appears only inside a product string quoted verbatim ("Crawled – currently not indexed"); a hyphen in a compound word is fine.
+- Arrows in prose (`→`, `->`, `=>`). Sequences are sentences ("first X, then Y") or numbered lists. Menu paths use `>`: `Performance > Compare`. Diagram edges inside a mermaid block are not prose.
+- Filler and marketing: delve, leverage, seamless, robust, crucial, game-changer, unlock, "in today's", "it's worth noting", "here's the thing", "let that sink in", and their relatives. Say the fact.
+- Hedging without content ("might possibly", "it could be argued"). Either the claim has a source, or it is labelled a heuristic, or it goes.
+- Emoji, decorative tables, headers as decoration. A table holds data with at least two columns of it.
+- Praise of the reader or the tool. No "great question", no "powerful".
+- Claims about how a platform, product, or Google feature behaves without a row in `skills/seo/seo/references/sources.md` (URL and check date, verified against the primary source). Unverified means labelled as a heuristic or left out.
+
+## Structure
+
+- Every line in a `SKILL.md` changes behaviour; what the model does anyway goes.
+- Steps end on a completion criterion ("Done when ...").
+- Reference material sits behind a pointer to `references/`, never inline in a step.
+- Tools are interchangeable and appear only in `references/tools.md`, never in a step.
+- Numbers, units, ids, file names, and error strings are exact and unchanged.
+- Code goes in fenced blocks; prose names a file, function, or flag only when the reader must go there.
+- Headers: at most three levels. Under 500 words, no headers.
+
+## Private data
+
+- Nothing about a customer: no domain, brand, key, analytics id, server path, or workspace under `docs/`. Site workspaces live in a private repository per site. Examples use `example.com` and made-up brands.
+- Customer names to reject sit in `.check_public.local` (gitignored, one regex per line), never in a tracked file.
+
+## Commits
+
+- Conventional prefix: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`. Subject under 72 characters, imperative, no period.
+- Body says what changed and why, in the same style as this file.
+- Adding, renaming, or changing a sub-skill updates the theme's router `SKILL.md` and the tables in `README.md` in the same commit.

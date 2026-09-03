@@ -27,7 +27,7 @@ Records `SITEMAP_URL`, `SITEMAP_SUBMITTED_AT`.
 Records `BING_IMPORTED_AT`.
 
 - Open `https://www.bing.com/webmasters`. Sign in.
-- My Sites → Import → sign in with the Google account that owns the Search Console property → Allow → tick the site → Import. Imported sites arrive verified, with their sitemaps; traffic data can take up to 48 hours. Bing re-syncs ownership with Search Console periodically, so revoking that Google access later drops the verification.
+- My Sites > Import > sign in with the Google account that owns the Search Console property > Allow > tick the site > Import. Imported sites arrive verified, with their sitemaps; traffic data can take up to 48 hours. Bing re-syncs ownership with Search Console periodically, so revoking that Google access later drops the verification.
 - Why: Bing's index is what ChatGPT search and Copilot retrieve from (see `seo/references/tools.md`).
 
 ## 4. IndexNow

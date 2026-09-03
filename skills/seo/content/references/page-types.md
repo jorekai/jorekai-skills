@@ -4,23 +4,23 @@ Beyond the weekly post, these four types earn commercial traffic. One query inte
 
 ## Weekly post (informational)
 
-Query: a question the product's users ask. Skeleton: answer in two sentences → why it matters → step-by-step or breakdown with `[WHAT I TRIED]` → pitfalls → tools or resources → FAQ. Original evidence is what separates it from the AI-generated copies competing for the same query.
+Query: a question the product's users ask. Skeleton: answer in two sentences, then why it matters, then step-by-step or breakdown with `[WHAT I TRIED]`, then pitfalls, then tools or resources, then FAQ. Original evidence is what separates it from the AI-generated copies competing for the same query.
 
 ## "Best X" (listicle)
 
-Query: `best [category]`, `top [category] tools`. Skeleton: one-paragraph verdict with the top pick → comparison table (name, best for, price, one standout, one limit) → one section per item: what it is, who it is for, `[OWN NUMBER]` or `[SCREENSHOT]`, price, verdict → how we chose → FAQ. 7–12 items. Your own product gets the same treatment as the rest, limits included.
+Query: `best [category]`, `top [category] tools`. Skeleton: one-paragraph verdict with the top pick, then comparison table (name, best for, price, one standout, one limit), then one section per item: what it is, who it is for, `[OWN NUMBER]` or `[SCREENSHOT]`, price, verdict, then how we chose, then FAQ. 7–12 items. Your own product gets the same treatment as the rest, limits included.
 
 ## "X vs Y" (comparison)
 
-Query: `[a] vs [b]`. Skeleton: verdict up front (which for whom) → side-by-side table → one section per criterion (price, core feature, ease, integrations, support) → when to pick A, when to pick B → FAQ. Neutral tone; the reader is choosing between the two.
+Query: `[a] vs [b]`. Skeleton: verdict up front (which for whom), then side-by-side table, then one section per criterion (price, core feature, ease, integrations, support), then when to pick A, when to pick B, then FAQ. Neutral tone; the reader is choosing between the two.
 
 ## "X alternatives"
 
-Query: `[competitor] alternatives`. Skeleton: why people leave X (three real reasons) → table of alternatives with "best for" → one section per alternative → migration notes → FAQ. Your product is one entry among the others.
+Query: `[competitor] alternatives`. Skeleton: why people leave X (three real reasons), then table of alternatives with "best for", then one section per alternative, then migration notes, then FAQ. Your product is one entry among the others.
 
 ## "How to [job]" (the exact job the product does)
 
-Query: `how to [job]`. Skeleton: the answer in two sentences → prerequisites → numbered steps with a `[SCREENSHOT]` slot per step → the manual way and the product way, side by side → common errors → FAQ. The product appears as one of the ways, with its trade-offs.
+Query: `how to [job]`. Skeleton: the answer in two sentences, then prerequisites, then numbered steps with a `[SCREENSHOT]` slot per step, then the manual way and the product way, side by side, then common errors, then FAQ. The product appears as one of the ways, with its trade-offs.
 
 ## Structured data note
 

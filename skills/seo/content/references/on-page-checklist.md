@@ -38,5 +38,5 @@ Tick every line before publishing.
 ## After publishing
 
 - [ ] `lastmod` in the sitemap updated.
-- [ ] GSC URL Inspection → Request indexing.
+- [ ] GSC URL Inspection > Request indexing.
 - [ ] URL handed to `jorekai-seo:distribution`.

@@ -167,7 +167,7 @@ def decide(s, today):
                    "(`won` / `no-change`) from a fresh export: " + ", ".join(r["id"] for r in s["due"]))
     exp = s["export"]
     if exp is None:
-        now.append("export Search Console (Performance → Export, 28 days, plus the previous 28 days) into exports/, "
+        now.append("export Search Console (Performance > Export, 28 days, plus the previous 28 days) into exports/, "
                    "then `jorekai-seo:gsc-review`")
         if stage == "loop" and not s["due"] and not s["todo"] and not s["briefs"] and not s["drafts"]:
             stage = "loop, not started"

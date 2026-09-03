@@ -5,7 +5,7 @@ description: Earn links to a target page and draft the outreach: internal links 
 
 # Links
 
-Order: internal → mentions that already exist → pages already ranking or cited → new placements. Cheapest and safest first.
+Order: internal links, then mentions that already exist, then pages already ranking or cited, then new placements. Cheapest and safest first.
 
 With a workspace, the target list is `docs/seo/<domain>/outreach.csv`, the anchors use `glossary.md` terms, and every placement gets a `links` row in the week's log.
 
@@ -26,7 +26,7 @@ With a workspace, the target list is `docs/seo/<domain>/outreach.csv`, the ancho
 4. **Outreach.** One email per target from [references/outreach-templates.md](references/outreach-templates.md), personalized with the exact page and the exact sentence where the link fits. Offer in this order: value (a better resource, a missing section, data), a reciprocal link from a relevant page of yours, then payment. AI-cited pages get contacted the same day they are found; those lists move fast.
    Done when every qualified row has a draft and a follow-up date 7 days out.
 
-5. **Track.** `status` moves through sent → replied → placed → declined. Placement is verified by fetching the page and confirming the link and its `rel`, then logged as a `links` row (`scaffold.py <domain> --log` in `jorekai-seo:setup`, `verify after` 28 days).
+5. **Track.** `status` moves through `sent`, `replied`, `placed`, `declined`. Placement is verified by fetching the page and confirming the link and its `rel`, then logged as a `links` row (`scaffold.py <domain> --log` in `jorekai-seo:setup`, `verify after` 28 days).
 
 ## Rules
 

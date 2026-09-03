@@ -6,7 +6,7 @@ Ordered by how cheaply they are ruled out. For each: the shape that fits, the pr
 
 - Shape: impressions down, position flat, often sitewide or a topic cluster.
 - Prediction: the same dip appears last year at the same weeks.
-- Check: Performance → Compare "last 3 months year over year", weekly granularity, plus "Last 16 months" for the curve. Google Trends for the head query.
+- Check: Performance > Compare "last 3 months year over year", weekly granularity, plus "Last 16 months" for the curve. Google Trends for the head query.
 - Fix: none on the page. Close as expected `no-change`; plan content for the next peak.
 
 ## 2. A SERP feature took the click

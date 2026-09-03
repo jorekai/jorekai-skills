@@ -2,7 +2,7 @@
 
 Pick one when there is no time for the weekly loop. Each is complete on its own.
 
-- GSC → URL Inspection → Request indexing for the page you just changed.
+- GSC > URL Inspection > Request indexing for the page you just changed.
 - Move the target keyword into the first 60 characters of the title.
 - Add the main GSC query to the H1 if it is missing there.
 - Add 2 internal links from older posts to the page you want to push, with the query as anchor text.

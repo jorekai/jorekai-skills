@@ -44,7 +44,7 @@ Source: exports/2026-09-01-gsc.zip vs exports/2026-08-04-gsc.zip
 | 2026-W36-01 | striking | /blog/x | x tool | query into title and H1, new section "y" | applied | 2026-09-02 | 2026-09-16 | |
 ```
 
-Status, in order: `todo` → `applied` (date set) → `verify` (verify-after date reached, outcome pending) → `won` | `no-change` | `dropped`. A `won` row names the metric that moved in Outcome; `no-change` after two verify windows becomes `dropped` with the reason in Outcome.
+Status, in order: `todo`, then `applied` (date set), then `verify` (verify-after date reached, outcome pending), then one of `won`, `no-change`, `dropped`. A `won` row names the metric that moved in Outcome; `no-change` after two verify windows becomes `dropped` with the reason in Outcome.
 
 Buckets: `striking`, `ctr`, `decay`, `cannibal`, `unindexed`, `tech`, `links`, `content`, `distribution`, `diagnose`.
 

@@ -1,6 +1,15 @@
-# Curated skill collection
+# jorekai-skills
 
-Private, hand-maintained skills for recurring work. Skills live under `skills/<theme>/<skill>/` and reach Claude Code as the plugin `jorekai-<theme>` (`/jorekai-seo:setup`). Each skill is a directory with `SKILL.md`, and optionally `references/` (knowledge loaded only when needed), `scripts/` (deterministic helpers, Python stdlib or bash only), `templates/` (files a skill writes into a project), and `agents/openai.yaml` (Codex metadata).
+Hand-maintained skills for recurring work, one Claude Code plugin per theme. Install once, then the skills are slash commands in every repository:
+
+```bash
+claude plugin marketplace add jorekai/jorekai-skills
+claude plugin install jorekai-seo@jorekai
+```
+
+Then `/jorekai-seo:setup` in the repository of a site. Codex users link the same folders with `scripts/link.sh` (see "Use in a project").
+
+Skills live under `skills/<theme>/<skill>/`. Each skill is a directory with `SKILL.md`, and optionally `references/` (knowledge loaded only when needed), `scripts/` (deterministic helpers, Python stdlib or bash only), `templates/` (files a skill writes into a project), and `agents/openai.yaml` (Codex metadata). Writing rules for every file: `STYLE.md`. Gate before every commit: `scripts/check.sh`. License: MIT.
 
 ## Structure
 
@@ -91,11 +100,11 @@ Theme `skills/seo/`. You call user-invoked skills yourself (`/jorekai-seo:name` 
 The collection is a Claude Code plugin (`.claude-plugin/plugin.json`, marketplace `jorekai` in `.claude-plugin/marketplace.json`). Installed once at user scope, every skill is available in every repo as `/jorekai-<theme>:<name>`, with autocomplete after `/jorekai-`:
 
 ```bash
-claude plugin marketplace add ~/Developer/playground/skills   # once
+claude plugin marketplace add jorekai/jorekai-skills          # once; a local checkout works too: marketplace add /path/to/jorekai-skills
 claude plugin install jorekai-seo@jorekai
 ```
 
-Then `/jorekai-seo:setup`, `/jorekai-seo:connect`, `/jorekai-seo:grill`, `/jorekai-seo:and-now`, and the router `/jorekai-seo:seo`. The install is a copy under `~/.claude/plugins/cache/jorekai/`, not a link: after editing `skills/`, run `claude plugin update jorekai-seo@jorekai` (or `/reload-plugins` in a session), then start a new session.
+Then `/jorekai-seo:setup`, `/jorekai-seo:connect`, `/jorekai-seo:grill`, `/jorekai-seo:and-now`, and the router `/jorekai-seo:seo`. The install is a copy under `~/.claude/plugins/cache/jorekai/`, not a link: after editing `skills/`, bump `version` in `.claude-plugin/plugin.json`, run `claude plugin marketplace update jorekai` and `claude plugin update jorekai-seo@jorekai`, then start a new session.
 
 Codex reads `<repo>/.agents/skills/<name>/`; the link script fills that folder:
 
@@ -111,8 +120,8 @@ The workspace belongs in the site's repository. A site that lives in no reposito
 
 ## Maintenance
 
-- `bash scripts/check_public.sh` before every commit: no private data, no em dashes, no filler words. Prints `ok` or one line per hit. Customer names and domains to reject live in `.check_public.local` (gitignored, one regex per line), so the public script never names a customer.
-- Test scripts before editing the SKILL.md that calls them: `python3 skills/seo/tech-audit/scripts/test_audit.py` (offline) and `python3 skills/seo/tech-audit/scripts/audit.py https://example.com`, `python3 skills/seo/gsc-review/scripts/test_gsc.py` (offline), `python3 skills/seo/gsc-review/scripts/gsc_opportunities.py --help`, `python3 skills/seo/setup/scripts/scaffold.py --root /tmp/x example.com`, `python3 skills/seo/and-now/scripts/test_status.py` (offline), `python3 skills/seo/gsc-review/scripts/snippets.py --help`, `bash -n skills/seo/connect/templates/wizard.sh`, `bash -n skills/seo/connect/scripts/indexnow.sh`.
+- `STYLE.md` is the rulebook for prose, code, commits, and private data. Every agent reads it through `AGENTS.md` (Codex, Cursor, Gemini) or `CLAUDE.md` (Claude Code).
+- `bash scripts/check.sh` before every commit: style, private data, then every offline test and syntax check. Prints `ok` or one line per hit. Customer names to reject live in `.check_public.local` (gitignored, one regex per line); CI writes it from the secret `CHECK_PUBLIC_LOCAL`.
 - Every line in a SKILL.md must change behaviour; what the model does anyway goes.
-- The router must not lie: whoever adds, renames, or changes a sub-skill checks `skills/seo/seo/SKILL.md` and the table above in the same commit.
+- The router must not lie: whoever adds, renames, or changes a sub-skill checks `skills/seo/seo/SKILL.md` and the table above in the same commit, and bumps the plugin version.
 - Years, tool names, platform behaviour, and Google features live only in `references/`; every such claim has a row in `skills/seo/seo/references/sources.md` with URL and check date. Unverified means: labelled as a heuristic, or removed.

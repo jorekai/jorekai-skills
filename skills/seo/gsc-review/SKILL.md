@@ -9,7 +9,7 @@ Reads `docs/seo/<domain>/config.md` for `brand_regex`, `expected_ctr_1`, `min_im
 
 ## Steps
 
-1. **Get the export.** Needed: the zip or folder from GSC → Performance → Search results → Export → Download CSV, for the window in `gsc_export_window` (`config.md`; default 28 days). The first run on a site may use 3 months to see enough queries; every run that grades a verdict uses the configured window, because a 3-month window blurs the date the change went live. For decay, a second export of the preceding period of equal length. Optional: a page×query table and a not-indexed URL list. Exact clicks in [references/export-howto.md](references/export-howto.md). Without an export, send the user those steps and stop.
+1. **Get the export.** Needed: the zip or folder from GSC > Performance > Search results > Export > Download CSV, for the window in `gsc_export_window` (`config.md`; default 28 days). The first run on a site may use 3 months to see enough queries; every run that grades a verdict uses the configured window, because a 3-month window blurs the date the change went live. For decay, a second export of the preceding period of equal length. Optional: a page×query table and a not-indexed URL list. Exact clicks in [references/export-howto.md](references/export-howto.md). Without an export, send the user those steps and stop.
    Save the files as `exports/YYYY-MM-DD-gsc.zip` (and `-prev.zip`) in the workspace, and write the week's `Source:` line as `exports/<file> (<start> to <end>, <length>)`; `jorekai-seo:and-now` reads that line.
    Done when a path to a zip or folder containing the queries and pages tables exists and the `Source:` line names the period.
 
