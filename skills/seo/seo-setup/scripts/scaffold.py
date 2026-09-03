@@ -122,6 +122,12 @@ def log(root, domain, today):
     print(f"next id: {week}-{(max(used) + 1) if used else 1:02d}")
 
 
+def split_cells(line):
+    """Markdown table cells; `\\|` inside a cell is an escaped pipe, not a separator.
+    Duplicated in seo-and-now/scripts/status.py on purpose: each skill stays standalone."""
+    return [c.replace("\\|", "|").strip() for c in re.split(r"(?<!\\)\|", line.strip().strip("|"))]
+
+
 def table_rows(text, heading):
     """Rows of the first markdown table after `heading`, as dicts keyed by header."""
     if heading not in text:
@@ -130,10 +136,10 @@ def table_rows(text, heading):
     lines = [l for l in section.splitlines() if l.strip().startswith("|")]
     if len(lines) < 2:
         return []
-    head = [c.strip().lower() for c in lines[0].strip().strip("|").split("|")]
+    head = [c.strip().lower() for c in split_cells(lines[0])]
     rows = []
     for line in lines[2:]:
-        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        cells = split_cells(line)
         if len(cells) == len(head):
             rows.append(dict(zip(head, cells)))
     return rows

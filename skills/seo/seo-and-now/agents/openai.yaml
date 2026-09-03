@@ -1,0 +1,5 @@
+interface:
+  display_name: "SEO and now?"
+  short_description: "Where the domain stands in the loop and the next step"
+policy:
+  allow_implicit_invocation: false

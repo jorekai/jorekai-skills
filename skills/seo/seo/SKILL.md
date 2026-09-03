@@ -25,10 +25,13 @@ Every skill reads and writes `docs/seo/<domain>/` in the site's repository: `con
 
 **Something dropped**: `seo-diagnose`. Six hypotheses, one change, verify date in the log.
 
+**Lost the thread**: `seo-and-now` reads the workspace and names the stage, the open items, and the next skill.
+
 ## Sub-skills
 
 | Need | Skill | Invoked by |
 |---|---|---|
+| Where am I in the loop, what comes next? | `seo-and-now` | you |
 | Set up the workspace for a repo or a new domain | `seo-setup` | you |
 | Connect Search Console, sitemap, Bing, IndexNow | `seo-connect` | you |
 | Pin niche, audience, competitors, keywords, evidence, vocabulary | `seo-grill` | you |

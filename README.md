@@ -11,7 +11,7 @@ Private, hand-maintained skills for recurring work. Skills live under `skills/<t
 
 ## The SEO loop, start to end
 
-Three phases. Setup once per domain, the weekly loop for good, diagnosis only when something drops. Everything that changes the site leaves a row in the log; the loop learns from the log, not from memory.
+Three phases. Setup once per domain, the weekly loop for good, diagnosis only when something drops. Everything that changes the site leaves a row in the log; the loop learns from the log, not from memory. Lost the thread: `seo-and-now` reads the workspace and says which phase the domain is in and what comes next.
 
 ```mermaid
 flowchart TD
@@ -61,6 +61,7 @@ flowchart TD
 | Link | `seo-links` | Internal links first, then `outreach.csv` with a reason per target, emails, status | Internal links cost nothing and work immediately. Paid links carry `rel="sponsored"`. |
 | Distribute | `seo-distribution` | Three texts, keyword in line one, the link where it completes the answer | Reach and referral traffic, not ranking credit: Reddit and LinkedIn set `nofollow`. |
 | Repair | `seo-diagnose` | The red line from the export, ranked hypotheses with predictions, one change, `diagnose` row in the log | Data first, theory second. Two changes in one verify window make the outcome unreadable. |
+| Orient | `seo-and-now` | Stage (setup, audit, loop), open log rows, verify dates due, export age, briefs without drafts, drafts not shipped; the next skill to call | The state of the loop lives in files, not in anyone's memory. One command answers "and now?" after a break. |
 
 ### The log
 
@@ -74,6 +75,7 @@ Theme `skills/seo/`. You call user-invoked skills yourself (`/name` in Claude Co
 |---|---|---|
 | `seo` | user | Router: workspace, three flows, priority ladder, launch checklist, domain naming, tool stack, `references/sources.md` |
 | `seo-setup` | user | `scripts/scaffold.py`: create folders, `--log` (log path and next id), `--due` (actions due), `--check` |
+| `seo-and-now` | user | `scripts/status.py [domain]`: stage and next steps from the workspace files, no network |
 | `seo-connect` | user | `templates/wizard.sh`: wizard library; `references/stages.md`: verified click paths |
 | `seo-grill` | user | `references/question-bank.md`: the question tree |
 | `seo-tech-audit` | model | `scripts/audit.py URL --crawl N` |
@@ -98,7 +100,7 @@ Then run `/seo-setup` (Claude Code) or `$seo-setup` (Codex) in the repo. When a 
 
 ## Maintenance
 
-- Test scripts before editing the SKILL.md that calls them: `python3 skills/seo/seo-tech-audit/scripts/test_audit.py` (offline) and `python3 skills/seo/seo-tech-audit/scripts/audit.py https://example.com`, `python3 skills/seo/seo-gsc-review/scripts/test_gsc.py` (offline), `python3 skills/seo/seo-gsc-review/scripts/gsc_opportunities.py --help`, `python3 skills/seo/seo-setup/scripts/scaffold.py --root /tmp/x example.com`, `bash -n skills/seo/seo-connect/templates/wizard.sh`.
+- Test scripts before editing the SKILL.md that calls them: `python3 skills/seo/seo-tech-audit/scripts/test_audit.py` (offline) and `python3 skills/seo/seo-tech-audit/scripts/audit.py https://example.com`, `python3 skills/seo/seo-gsc-review/scripts/test_gsc.py` (offline), `python3 skills/seo/seo-gsc-review/scripts/gsc_opportunities.py --help`, `python3 skills/seo/seo-setup/scripts/scaffold.py --root /tmp/x example.com`, `python3 skills/seo/seo-and-now/scripts/test_status.py` (offline), `bash -n skills/seo/seo-connect/templates/wizard.sh`.
 - Every line in a SKILL.md must change behaviour; what the model does anyway goes.
 - The router must not lie: whoever adds, renames, or changes a sub-skill checks `skills/seo/seo/SKILL.md` and the table above in the same commit.
 - Years, tool names, platform behaviour, and Google features live only in `references/`; every such claim has a row in `skills/seo/seo/references/sources.md` with URL and check date. Unverified means: labelled as a heuristic, or removed.

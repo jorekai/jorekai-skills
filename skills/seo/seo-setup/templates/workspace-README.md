@@ -1,6 +1,6 @@
 # SEO workspace
 
-Working files for search work on this repository. One folder per canonical host. Agents read `<domain>/config.md` before running any `seo-*` skill; humans start with `<domain>/strategy.md`.
+Working files for search work on this repository. One folder per canonical host. Agents read `<domain>/config.md` before running any `seo-*` skill; humans start with `<domain>/strategy.md`. Unsure where the loop stands: `seo-and-now` reads this folder and names the stage and the next step.
 
 ## Domains
 
