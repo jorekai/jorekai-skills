@@ -158,16 +158,18 @@ def is_brand(key, a):
     return bool(a.brand_re and a.brand_re.search(key))
 
 
-def striking(rows, a):
+def striking(rows, a, is_query=True):
+    """`is_query=False` for the pages table: the brand filter only applies to query text.
+    A page key is a full URL, and the brand name usually sits in the host."""
     hits = [r for r in rows if a.pos_min <= r["position"] <= a.pos_max and r["impressions"] >= a.min_impressions
-            and not is_brand(r["key"], a)]
+            and not (is_query and is_brand(r["key"], a))]
     return sorted(hits, key=lambda r: -r["impressions"])
 
 
-def ctr_gap(rows, a):
+def ctr_gap(rows, a, is_query=True):
     hits = []
     for r in rows:
-        if r["impressions"] < max(a.min_impressions, 100) or r["position"] > 20 or is_brand(r["key"], a):
+        if r["impressions"] < max(a.min_impressions, 100) or r["position"] > 20 or (is_query and is_brand(r["key"], a)):
             continue
         exp = expected_ctr(r["position"])
         if r["ctr"] < exp * 0.5:
@@ -315,8 +317,8 @@ def main():
         bq = [r for r in queries if is_brand(r["key"], a)]
         brand = {"queries": len(bq), "clicks": sum(r["clicks"] for r in bq), "total_clicks": sum(r["clicks"] for r in queries)}
     res = {"n_queries": len(queries), "n_pages": len(pages), "brand": brand,
-           "striking_queries": striking(queries, a), "striking_pages": striking(pages, a),
-           "ctr_gap_queries": ctr_gap(queries, a), "ctr_gap_pages": ctr_gap(pages, a),
+           "striking_queries": striking(queries, a), "striking_pages": striking(pages, a, is_query=False),
+           "ctr_gap_queries": ctr_gap(queries, a), "ctr_gap_pages": ctr_gap(pages, a, is_query=False),
            "decay": None, "cannibal": None, "not_indexed": None}
     if a.previous:
         _, prev_pages = split_export(load_export(a.previous))

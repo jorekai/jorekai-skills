@@ -77,7 +77,7 @@ Theme `skills/seo/`. You call user-invoked skills yourself (`/name` in Claude Co
 | `seo-connect` | user | `templates/wizard.sh`: wizard library; `references/stages.md`: verified click paths |
 | `seo-grill` | user | `references/question-bank.md`: the question tree |
 | `seo-tech-audit` | model | `scripts/audit.py URL --crawl N` |
-| `seo-gsc-review` | model | `scripts/gsc_opportunities.py EXPORT --previous EXPORT` |
+| `seo-gsc-review` | model | `scripts/gsc_opportunities.py EXPORT --previous EXPORT` (tests: `scripts/test_gsc.py`) |
 | `seo-content` | model | `references/page-types.md`, `references/on-page-checklist.md` |
 | `seo-review` | model | two subagent briefs with a fixed word limit |
 | `seo-diagnose` | model | `references/hypotheses.md`: six hypotheses with prediction, check, fix |
@@ -98,7 +98,7 @@ Then run `/seo-setup` (Claude Code) or `$seo-setup` (Codex) in the repo. When a 
 
 ## Maintenance
 
-- Test scripts before editing the SKILL.md that calls them: `python3 skills/seo/seo-tech-audit/scripts/test_audit.py` (offline) and `python3 skills/seo/seo-tech-audit/scripts/audit.py https://example.com`, `python3 skills/seo/seo-setup/scripts/scaffold.py --root /tmp/x example.com`, `bash -n skills/seo/seo-connect/templates/wizard.sh`.
+- Test scripts before editing the SKILL.md that calls them: `python3 skills/seo/seo-tech-audit/scripts/test_audit.py` (offline) and `python3 skills/seo/seo-tech-audit/scripts/audit.py https://example.com`, `python3 skills/seo/seo-gsc-review/scripts/test_gsc.py` (offline), `python3 skills/seo/seo-gsc-review/scripts/gsc_opportunities.py --help`, `python3 skills/seo/seo-setup/scripts/scaffold.py --root /tmp/x example.com`, `bash -n skills/seo/seo-connect/templates/wizard.sh`.
 - Every line in a SKILL.md must change behaviour; what the model does anyway goes.
 - The router must not lie: whoever adds, renames, or changes a sub-skill checks `skills/seo/seo/SKILL.md` and the table above in the same commit.
 - Years, tool names, platform behaviour, and Google features live only in `references/`; every such claim has a row in `skills/seo/seo/references/sources.md` with URL and check date. Unverified means: labelled as a heuristic, or removed.
