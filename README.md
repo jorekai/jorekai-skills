@@ -82,7 +82,7 @@ Theme `skills/seo/`. You call user-invoked skills yourself (`/jorekai-seo:name` 
 
 | Skill | Invoked by | Deterministic part |
 |---|---|---|
-| `seo` | user | Router: workspace, three flows, priority ladder, launch checklist, domain naming, tool stack, `references/sources.md` |
+| `jorekai-seo:seo` | user | Router: workspace, three flows, priority ladder, launch checklist, domain naming, tool stack, `references/sources.md` |
 | `jorekai-seo:setup` | user | `scripts/scaffold.py`: create folders, `--log` (log path and next id), `--due` (actions due), `--check` |
 | `jorekai-seo:and-now` | user | `scripts/status.py [domain]`: stage and next steps from the workspace files, no network |
 | `jorekai-seo:connect` | user | `templates/wizard.sh`: wizard library; `references/stages.md`: verified click paths; `scripts/indexnow.sh <domain> URL…`: submit changed URLs to IndexNow |
@@ -116,7 +116,7 @@ scripts/link.sh <repo> setup      # named skills, globs allowed
 
 Then `$setup` (Codex) in the repo. When a skill is stable: move it to `~/Developer/claude-skill-library/skills/` and distribute it with `link.sh` from `project-index`.
 
-The workspace belongs in the site's repository. A site that lives in no repository (a hosted CMS) gets a small private repository of its own that holds only `docs/seo/`, the pointer block, and the Codex links. This collection is public and carries no workspace, key, ID, or customer data; `scripts/check_public.sh` enforces that before every commit.
+The workspace belongs in the site's repository. A site that lives in no repository (a hosted CMS) gets a small private repository of its own that holds only `docs/seo/`, the pointer block, and the Codex links. This collection is public and carries no workspace, key, ID, or customer data; `scripts/check.sh` enforces that before every commit.
 
 ## Maintenance
 
@@ -124,5 +124,5 @@ The workspace belongs in the site's repository. A site that lives in no reposito
 - `bash scripts/check.sh` before every commit: style, private data, then every offline test and syntax check. Runs gitleaks over the history when installed (`brew install gitleaks`); CI always does. Prints `ok` or one line per hit. Customer names to reject live in `.check_public.local` (gitignored, one regex per line); CI writes it from the secret `CHECK_PUBLIC_LOCAL`.
 - Every line in a SKILL.md must change behaviour; what the model does anyway goes.
 - The router must not lie: whoever adds, renames, or changes a sub-skill checks `skills/seo/seo/SKILL.md` and the table above in the same commit, and bumps the plugin version.
-- Years, tool names, platform behaviour, and Google features live only in `references/`; every such claim has a row in `skills/seo/seo/references/sources.md` with URL and check date. Unverified means: labelled as a heuristic, or removed. `python3 scripts/sources_age.py` lists rows older than 180 days; `check.sh` prints them as warnings.
+- Years, tool names, platform behaviour, and Google features stay out of the steps; a sourced fact stands in a skill's rules or interpretation section, and material a reader looks up goes to `references/`. Every such claim has a row in `skills/seo/seo/references/sources.md` with URL and check date. Unverified means: labelled as a heuristic, or removed. `python3 scripts/sources_age.py` lists rows older than 180 days; `check.sh` prints them as warnings.
 - Every release: bump `version` in `.claude-plugin/plugin.json`, add the entry at the top of `CHANGELOG.md`, push, then `claude plugin marketplace update jorekai` and `claude plugin update jorekai-seo@jorekai`.

@@ -2,7 +2,7 @@
 
 Skills live under `skills/<theme>/<skill>/`; `README.md` explains the layout and the SEO loop; `STYLE.md` holds the writing rules for every file and every agent; `decisions/` holds the reasons behind the rules, one file per decision. Rules for editing:
 
-- Read `STYLE.md` before writing a line. English only, no em dashes, no arrows in prose, no filler, sources for every platform claim.
+- Read `STYLE.md` before writing a line. English only, no em dashes, no arrows in prose, no filler, sources for every platform claim. Steps stay free of years, tool names, and platform facts; a sourced fact stands outside `## Steps`.
 - The collection is public. No customer domain, key, analytics id, server path, or workspace under `docs/` is ever committed; site workspaces live in a private repository per site.
 - `bash scripts/check.sh` runs before every commit and must print `ok`. It checks style, private data, then every offline test and syntax check. Customer names to reject sit in `.check_public.local` (gitignored, one regex per line).
 - Test a script before editing the SKILL.md that calls it; `scripts/check.sh` lists the commands. Scripts stay Python stdlib or bash.

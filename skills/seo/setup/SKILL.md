@@ -24,7 +24,7 @@ Scaffold the workspace every other `jorekai-seo:*` skill reads and writes. Promp
    - Domains and canonical host (`https://`, `www` or bare). Several domains: one folder and one `config.md` each.
    - The unknown keys from step 1.
    - Search Console calibration: `brand_regex` (brand plus misspellings), `expected_ctr_1` (0.11 until an export says otherwise), `min_impressions`.
-   - Crawler policy: recommend allowing `OAI-SearchBot`, `PerplexityBot`, `Bingbot`, `Claude-SearchBot`, `Google-Extended` (citations in ChatGPT search, Perplexity, Copilot, Claude, Gemini grounding); training bots are the owner's call.
+   - Crawler policy: recommend allowing every bot on the `ai_search_bots` line of [templates/config.md](templates/config.md); training bots are the owner's call.
    - Pointer file. `CLAUDE.md` is only `@AGENTS.md` (plus blank lines): edit `AGENTS.md` alone, the import carries the block. Both exist with own content: edit both. Only `AGENTS.md`: propose a `CLAUDE.md` containing `@AGENTS.md` (Claude Code reads `CLAUDE.md`, not `AGENTS.md`; the import shares one file). Neither: create `AGENTS.md` with the block and `CLAUDE.md` with `@AGENTS.md`.
    - `exports/` is git-ignored by the scaffold; ask only if the repo tracks `docs/` with a custom ignore scheme.
    Done when every value is confirmed or explicitly left blank.
@@ -43,7 +43,7 @@ Scaffold the workspace every other `jorekai-seo:*` skill reads and writes. Promp
    SEO workspace: `docs/seo/README.md` (layout, log format). Domains: example.com. Read `docs/seo/<domain>/config.md` before running any `jorekai-seo:*` skill; every change to the site gets a row in `docs/seo/<domain>/log/`.
    ```
 
-   If the `jorekai-seo:*` skills are not reachable from this repo in both harnesses, run `../../../scripts/link.sh <repo> seo` from this skill's directory: it links every skill of the collection into `.claude/skills/` (Claude Code) and `.agents/skills/` (Codex).
+   Claude Code reaches the skills through the installed plugin and needs no links. Codex reads `<repo>/.agents/skills/`: run `../../../scripts/link.sh <repo> seo` from this skill's directory to link every skill of the collection there.
    Done when `python3 scripts/scaffold.py --root docs/seo --check` prints `ok`, every `config.md` has no unconfirmed placeholder, and the block is in place.
 
 4. **Hand off.** Two skills finish the setup: `jorekai-seo:connect` (Search Console, sitemap, Bing, IndexNow; a wizard for the clicks only a human can make) and `jorekai-seo:grill` (niche, audience, competitors, keywords, evidence, glossary). Live site: `jorekai-seo:connect` first. Site not live yet: `jorekai-seo:grill` first.

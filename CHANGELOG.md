@@ -2,6 +2,12 @@
 
 One entry per plugin version. The version at the top equals `version` in `.claude-plugin/plugin.json`; `scripts/check.sh` checks that. Dates are ISO.
 
+## 1.3.0 (2026-09-03)
+
+- Added: `decisions/0006-sourced-facts-outside-the-steps.md`, which supersedes the placement half of 0004: a sourced fact may stand in a `SKILL.md` outside `## Steps`, a step carries none.
+- Changed: `STYLE.md`, `AGENTS.md`, and `README.md` carry one wording for that rule; `content`, `links`, `gsc-review`, and `setup` moved years, tool names, and platform facts out of their steps into `## Rules`, `## Interpretation`, or a pointer.
+- Changed: `README.md` names `scripts/check.sh` and the router as `jorekai-seo:seo`; `setup` says `link.sh` writes `.agents/skills/` only; `and-now` prints `/jorekai-seo:<name>`.
+
 ## 1.2.0 (2026-09-03)
 
 - Added: `CHANGELOG.md`, decision records under `decisions/`, `CONTRIBUTING.md`, issue and pull request templates, Dependabot for GitHub Actions.

@@ -20,13 +20,18 @@ Workspace: `docs/seo/<domain>/` holds `strategy.md` (clusters, evidence inventor
 3. **Outline.** H1 = the primary query phrased naturally. H2s = shared sections, then gaps, then one section none of the top 5 has. The first paragraph answers the query in two sentences. Template from [references/page-types.md](references/page-types.md). Headings use the glossary's terms; an `_Avoid_` word never appears in an H1 or H2.
    Done when every H2 states what the reader gets and the primary query appears in the H1 and in one H2.
 
-4. **Draft** into `drafts/<slug>.md` with evidence slots for the author: `[SCREENSHOT: …]`, `[OWN NUMBER: …]`, `[WHAT I TRIED: …]`. Fill a slot from the evidence inventory in `strategy.md` where a row fits; the rest go to the author as one numbered round of questions (slot, what is needed, why it matters), and the answers land under "Evidence answers" in the brief before the draft is called done. Everything experiential is a slot, never a sentence written as if lived. Include a byline slot and a one-line "how this was tested" slot; Google's helpful-content guidance asks who made the page, how, and why. The rater guidelines (September 2025 edition, section 4.6.6) give the Lowest rating to content that is "copied, paraphrased, embedded, auto or AI generated, or reposted" with "little to no effort, little to no originality, and little to no added value"; the tool does not matter, the added value does. Short paragraphs, concrete nouns, a table wherever the SERP shows tables. Close with a 3-question FAQ built from real GSC queries for the page or People-also-ask.
+4. **Draft** into `drafts/<slug>.md` with evidence slots for the author: `[SCREENSHOT: …]`, `[OWN NUMBER: …]`, `[WHAT I TRIED: …]`. Fill a slot from the evidence inventory in `strategy.md` where a row fits; the rest go to the author as one numbered round of questions (slot, what is needed, why it matters), and the answers land under "Evidence answers" in the brief before the draft is called done. Everything experiential is a slot, never a sentence written as if lived. Include a byline slot and a one-line "how this was tested" slot. Short paragraphs, concrete nouns, a table wherever the SERP shows tables. Close with a 3-question FAQ built from real GSC queries for the page or People-also-ask.
    Done when every section carries body text or a slot, and no sentence claims an experience the author has not confirmed.
 
 5. **On-page pass** with [references/on-page-checklist.md](references/on-page-checklist.md): title ≤ 60 characters with the keyword in the first half, meta 120–160 characters with a reason to click, slug = shortened H1, alt on the first image, 2 outgoing internal links to related pages, and 2 incoming internal links from older pages named as source URL plus anchor.
    Done when every checklist line is ticked or handed to the author as open.
 
-6. **Refresh rule** for an existing page: change the body materially (new section, updated numbers, removed stale claims), then move the visible date, `dateModified`, and `lastmod` together. Without a body change the date stays: Google reads visible and structured dates against each other, and Mueller calls a date change without a content change "noise & useless".
+6. **Refresh rule** for an existing page: change the body materially (new section, updated numbers, removed stale claims), then move the visible date, `dateModified`, and `lastmod` together. Without a body change the date stays.
+
+## Rules
+
+- Evidence carries the page. Google's helpful-content guidance asks who made the page, how, and why, and the rater guidelines (September 2025 edition, section 4.6.6) give the Lowest rating to content that is "copied, paraphrased, embedded, auto or AI generated, or reposted" with "little to no effort, little to no originality, and little to no added value". The tool does not matter, the added value does.
+- A date moved without a content change is noise: Google reads the visible and the structured date against each other, and Mueller calls the bump "noise & useless".
 
 ## Then
 

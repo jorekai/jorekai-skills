@@ -22,6 +22,7 @@ Rules for every file in this repository and for every agent or person who edits 
 
 - Every line in a `SKILL.md` changes behaviour; what the model does anyway goes.
 - Steps end on a completion criterion ("Done when ...").
+- A step carries no year, no tool name, and no platform fact. A sourced fact stands outside `## Steps`, in `## Rules`, in `## Interpretation`, or in the opening paragraph.
 - Reference material sits behind a pointer to `references/`, never inline in a step.
 - Tools are interchangeable and appear only in `references/tools.md`, never in a step.
 - Numbers, units, ids, file names, and error strings are exact and unchanged.
