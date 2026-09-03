@@ -1,0 +1,12 @@
+{
+  "name": "jorekai",
+  "owner": { "name": "Nils Jorek" },
+  "plugins": [
+    {
+      "name": "jorekai-seo",
+      "description": "SEO loop: setup, connect, grill, tech-audit, gsc-review, content, review, links, distribution, diagnose, and-now.",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}

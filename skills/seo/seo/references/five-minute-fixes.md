@@ -15,4 +15,4 @@ Pick one when there is no time for the weekly loop. Each is complete on its own.
 - Google your brand plus product keyword: any page that mentions you without a link gets a one-line email asking for the link.
 - Ask an AI assistant "best tool for [keyword]"; open the cited pages; email those authors the same day.
 - Post the URL on X, LinkedIn, or Reddit with the keyword in the first line.
-- Run `seo-tech-audit` on the page and apply the first WARN.
+- Run `jorekai-seo:tech-audit` on the page and apply the first WARN.
