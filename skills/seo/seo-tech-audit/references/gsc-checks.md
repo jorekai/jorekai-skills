@@ -41,7 +41,7 @@ Fixes with the largest documented effect (web.dev):
 - The default view is the last indexed version, not the live page. After a fix, run "Test live URL": it fetches and renders now. Confirm the rendered HTML contains the H1 and body text and that no blocked resource carries content.
 - "URL is on Google" with the user-declared canonical equal to the Google-selected canonical.
 - "URL is unknown to Google": Google has never seen the URL. Add internal links and the sitemap entry, then Request indexing.
-- "Request indexing" after every content change. One request per URL; repeats do not speed it up. The quota is roughly 10–12 requests per property per day (unpublished, observed), then the button greys out for 24 hours.
+- "Request indexing" after every content change. One request per URL; repeats do not speed it up. Google states "a daily limit" without a number and no guarantee of indexing (sources.md, URL Inspection row); when the button greys out, the day's limit is reached. Only the property owner can click it; the agent submits the same URLs to IndexNow with `seo-connect/scripts/indexnow.sh`.
 
 ## Security & Manual Actions
 

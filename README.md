@@ -28,7 +28,7 @@ flowchart TD
         W1["seo-gsc-review<br/>1. grade due actions: won / no-change<br/>2. buckets: striking, ctr, decay, cannibal, unindexed"]
         W2["seo-content<br/>brief, SERP recon, outline, evidence round with the author, draft"]
         W3["seo-review<br/>Intent: better than the top 5?<br/>Standards: checklist, glossary, fabrication check"]
-        W4["Ship<br/>content_dir, Request indexing, IndexNow, log row with verify date"]
+        W4["Ship<br/>content_dir, IndexNow via indexnow.sh, owner clicks Request indexing, log row with verify date"]
         W5["seo-links<br/>2 internal links from older pages, then outreach.csv"]
         W6["seo-distribution<br/>X thread, LinkedIn post, Reddit answer"]
         W0 --> W1 --> W2 --> W3
@@ -55,7 +55,7 @@ flowchart TD
 | Connect | `seo-connect` | `connect.sh`, a wizard that walks the human through the clicks and fills `connections.md` | Only a human can create the property, submit the sitemap, import into Bing, and place the IndexNow key. The wizard checks what it can check itself (sitemap 200, key file, IndexNow response). |
 | Understand | `seo-grill` | `strategy.md` (offer, audience, competitors, keyword clusters with priority, evidence inventory, constraints) and `glossary.md` | Facts are the agent's job (SERPs, export); decisions are the user's. Without an evidence inventory, drafts stay empty placeholders. |
 | Check | `seo-tech-audit` | Report with a fix per check id, applied in the template or written as CMS admin steps with the new value, full JSON in `audits/`, `tech` row in the log | Nothing counts before the pages are indexable. |
-| Pick | `seo-gsc-review` | First the verdict on due actions from earlier weeks, then one table: URL, query, action, expected gain; every accepted row goes to the log | Position 8–20 is closer to page 1 than any new article. Verdicts first, so the same action is never recommended twice. |
+| Pick | `seo-gsc-review` | First the verdict on due actions from earlier weeks, then one table: URL, query, current snippet, action, expected gain; every accepted row goes to the log, hosted sites get a prompt for the server session | Position 8–20 is closer to page 1 than any new article. Verdicts first, so the same action is never recommended twice. A meta that promises a price the page does not name loses the click twice. |
 | Write | `seo-content` | `briefs/<slug>.md`, `drafts/<slug>.md` with evidence slots, one round of questions to the author, on-page checklist | One page, one intent. What the author has not confirmed stays a slot and never becomes a sentence. |
 | Approve | `seo-review` | Two separate reports, each with a verdict: `ship` or `fix first` | A page can be right for the query and still unbacked, or the reverse. Separate axes cannot hide each other. |
 | Link | `seo-links` | Internal links first, then `outreach.csv` with a reason per target, emails, status | Internal links cost nothing and work immediately. Paid links carry `rel="sponsored"`. |
@@ -76,10 +76,10 @@ Theme `skills/seo/`. You call user-invoked skills yourself (`/name` in Claude Co
 | `seo` | user | Router: workspace, three flows, priority ladder, launch checklist, domain naming, tool stack, `references/sources.md` |
 | `seo-setup` | user | `scripts/scaffold.py`: create folders, `--log` (log path and next id), `--due` (actions due), `--check` |
 | `seo-and-now` | user | `scripts/status.py [domain]`: stage and next steps from the workspace files, no network |
-| `seo-connect` | user | `templates/wizard.sh`: wizard library; `references/stages.md`: verified click paths |
+| `seo-connect` | user | `templates/wizard.sh`: wizard library; `references/stages.md`: verified click paths; `scripts/indexnow.sh <domain> URL…`: submit changed URLs to IndexNow |
 | `seo-grill` | user | `references/question-bank.md`: the question tree |
 | `seo-tech-audit` | model | `scripts/audit.py URL --crawl N` |
-| `seo-gsc-review` | model | `scripts/gsc_opportunities.py EXPORT --previous EXPORT` (tests: `scripts/test_gsc.py`) |
+| `seo-gsc-review` | model | `scripts/gsc_opportunities.py EXPORT --previous EXPORT` (tests: `scripts/test_gsc.py`); `scripts/snippets.py URL --query Q`: current title, meta, H1, og:title, dateModified with flags |
 | `seo-content` | model | `references/page-types.md`, `references/on-page-checklist.md` |
 | `seo-review` | model | two subagent briefs with a fixed word limit |
 | `seo-diagnose` | model | `references/hypotheses.md`: six hypotheses with prediction, check, fix |
@@ -100,7 +100,7 @@ Then run `/seo-setup` (Claude Code) or `$seo-setup` (Codex) in the repo. When a 
 
 ## Maintenance
 
-- Test scripts before editing the SKILL.md that calls them: `python3 skills/seo/seo-tech-audit/scripts/test_audit.py` (offline) and `python3 skills/seo/seo-tech-audit/scripts/audit.py https://example.com`, `python3 skills/seo/seo-gsc-review/scripts/test_gsc.py` (offline), `python3 skills/seo/seo-gsc-review/scripts/gsc_opportunities.py --help`, `python3 skills/seo/seo-setup/scripts/scaffold.py --root /tmp/x example.com`, `python3 skills/seo/seo-and-now/scripts/test_status.py` (offline), `bash -n skills/seo/seo-connect/templates/wizard.sh`.
+- Test scripts before editing the SKILL.md that calls them: `python3 skills/seo/seo-tech-audit/scripts/test_audit.py` (offline) and `python3 skills/seo/seo-tech-audit/scripts/audit.py https://example.com`, `python3 skills/seo/seo-gsc-review/scripts/test_gsc.py` (offline), `python3 skills/seo/seo-gsc-review/scripts/gsc_opportunities.py --help`, `python3 skills/seo/seo-setup/scripts/scaffold.py --root /tmp/x example.com`, `python3 skills/seo/seo-and-now/scripts/test_status.py` (offline), `python3 skills/seo/seo-gsc-review/scripts/snippets.py --help`, `bash -n skills/seo/seo-connect/templates/wizard.sh`, `bash -n skills/seo/seo-connect/scripts/indexnow.sh`.
 - Every line in a SKILL.md must change behaviour; what the model does anyway goes.
 - The router must not lie: whoever adds, renames, or changes a sub-skill checks `skills/seo/seo/SKILL.md` and the table above in the same commit.
 - Years, tool names, platform behaviour, and Google features live only in `references/`; every such claim has a row in `skills/seo/seo/references/sources.md` with URL and check date. Unverified means: labelled as a heuristic, or removed.

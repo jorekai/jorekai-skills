@@ -21,7 +21,9 @@ Every skill reads and writes `docs/seo/<domain>/` in the site's repository: `con
 3. `seo-grill`: interview → `strategy.md` (clusters, competitors, evidence) and `glossary.md`.
 4. `seo-tech-audit --crawl` until zero FAIL, then [references/launch-checklist.md](references/launch-checklist.md).
 
-**Weekly loop** (15 minutes): export GSC → `seo-gsc-review` (grades last weeks' actions from the log first) → top row via `seo-content` → `seo-review` before it ships → 2 internal links from older pages → Request indexing → `seo-distribution`. Every step leaves a log row.
+**Weekly loop** (15 minutes): export GSC → `seo-gsc-review` (grades last weeks' actions from the log first) → top row via `seo-content` → `seo-review` before it ships → 2 internal links from older pages → request indexing (IndexNow by the agent via `seo-connect/scripts/indexnow.sh`; Google "Request indexing" by the owner in URL Inspection, the Indexing API covers only `JobPosting` and `BroadcastEvent`) → `seo-distribution`. Every step leaves a log row.
+
+**Site not in a repository** (hosted CMS): fixes and snippet rows go to a session on the server, prompt and report format in [references/remote-session.md](references/remote-session.md).
 
 **Something dropped**: `seo-diagnose`. Six hypotheses, one change, verify date in the log.
 
@@ -33,7 +35,7 @@ Every skill reads and writes `docs/seo/<domain>/` in the site's repository: `con
 |---|---|---|
 | Where am I in the loop, what comes next? | `seo-and-now` | you |
 | Set up the workspace for a repo or a new domain | `seo-setup` | you |
-| Connect Search Console, sitemap, Bing, IndexNow | `seo-connect` | you |
+| Connect Search Console, sitemap, Bing, IndexNow; submit changed URLs to IndexNow (`scripts/indexnow.sh`) | `seo-connect` | you |
 | Pin niche, audience, competitors, keywords, evidence, vocabulary | `seo-grill` | you |
 | Is the site technically sound and indexable? | `seo-tech-audit` | agent or you |
 | What should I work on this week? | `seo-gsc-review` | agent or you |
@@ -69,4 +71,5 @@ Each rung depends on the one before it.
 - New site or domain: [references/launch-checklist.md](references/launch-checklist.md), [references/domain-naming.md](references/domain-naming.md)
 - Five-minute fixes when there is no time for the loop: [references/five-minute-fixes.md](references/five-minute-fixes.md)
 - Tools and what each is for: [references/tools.md](references/tools.md)
+- Fixing a site that lives in a CMS on a server: [references/remote-session.md](references/remote-session.md)
 - Documented facts with source and check date, and the list of heuristics: [references/sources.md](references/sources.md)

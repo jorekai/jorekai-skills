@@ -30,4 +30,4 @@ Workspace: `docs/seo/<domain>/` holds `strategy.md` (clusters, evidence inventor
 
 ## Then
 
-Run `seo-review` on the draft; it ships only on `ship` for both axes. Then move the draft into `content_dir`, run `unslop` when that skill is available, Request indexing in GSC (and a GET to the IndexNow endpoint when `connections.md` holds a key), write a `content` row to the week's log (`scaffold.py <domain> --log` in `seo-setup`; `verify after` 28 days), and pass the URL to `seo-distribution`.
+Run `seo-review` on the draft; it ships only on `ship` for both axes. Then move the draft into `content_dir`, run `unslop` when that skill is available, submit the URL to IndexNow with `bash <seo-connect>/scripts/indexnow.sh <domain> URL` (needs `INDEXNOW_KEY_FILE` in `connections.md`), ask the owner for "Request indexing" in Search Console URL Inspection (the owner's click; the Indexing API is limited to `JobPosting` and `BroadcastEvent`), write a `content` row to the week's log (`scaffold.py <domain> --log` in `seo-setup`; `verify after` 28 days), and pass the URL to `seo-distribution`.

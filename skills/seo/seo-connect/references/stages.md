@@ -36,7 +36,7 @@ Records `INDEXNOW_KEY_FILE`, `INDEXNOW_TESTED_AT`.
 
 - Precondition (agent, step 2 of the skill): key of 8 to 128 characters from `a-z`, `A-Z`, `0-9`, `-`; hosted as `https://<host>/<key>.txt` containing the key.
 - Wizard: `http_status "https://<host>/<key>.txt"` must be 200 and the body must equal the key. Then a test submission: `http_status "https://api.indexnow.org/indexnow?url=<canonical_host>/&key=<key>"`. Expected 200 (submitted) or 202 (received, key validation pending). 403 means the key file was not found or does not contain the key; 422 means the URL does not belong to the host; 429 means too many requests. Submissions to `api.indexnow.org` are shared with every participating engine (Bing, Naver, Seznam, Yandex, Yep, Amazon; Google is not one).
-- After that, `seo-content` and `seo-tech-audit` may push changed URLs through the same endpoint (`GET` per URL, or `POST` JSON with up to 10,000 URLs).
+- After that, `scripts/indexnow.sh <domain> URL [URL ...]` in this skill pushes changed URLs through the same endpoint (`POST` JSON, up to 10,000 URLs per call); `seo-content`, `seo-gsc-review`, and `seo-tech-audit` call it.
 
 ## 5. Analytics (optional)
 

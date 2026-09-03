@@ -32,3 +32,7 @@ Needs the workspace from `seo-setup` (`config.md` with `canonical_host`, `sitema
    ```
 
    The wizard opens browsers and blocks on input, so the agent never runs it. After the run: read `connections.md`, confirm the IndexNow test returned 200 or 202 and the sitemap shows `Success`, and append one `tech` row to the week's log (`scaffold.py <domain> --log` in `seo-setup` gives the path and id). Keep `connect.sh` in the folder; it is re-runnable for a new property or a re-verification.
+
+## After the setup
+
+Changed URLs go to IndexNow through `scripts/indexnow.sh <domain> URL [URL ...]` (reads `INDEXNOW_KEY_FILE` from `connections.md`, checks the key file first, one POST for all URLs, prints the status code with its meaning). `seo-gsc-review`, `seo-content`, and `seo-tech-audit` call it after a change is live; Google is not an IndexNow participant, so "Request indexing" in Search Console stays the owner's click.

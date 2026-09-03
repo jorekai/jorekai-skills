@@ -9,9 +9,9 @@ Reads `docs/seo/<domain>/config.md` for `brand_regex`, `expected_ctr_1`, `min_im
 
 ## Steps
 
-1. **Get the export.** Needed: the zip or folder from GSC → Performance → Search results → Export → Download CSV, for the last 28 days (3 months on small sites). For decay, a second export of the preceding period of equal length. Optional: a page×query table and a not-indexed URL list. Exact clicks in [references/export-howto.md](references/export-howto.md). Without an export, send the user those steps and stop.
-   Save the files as `exports/YYYY-MM-DD-gsc.zip` (and `-prev.zip`) in the workspace.
-   Done when a path to a zip or folder containing the queries and pages tables exists.
+1. **Get the export.** Needed: the zip or folder from GSC → Performance → Search results → Export → Download CSV, for the window in `gsc_export_window` (`config.md`; default 28 days). The first run on a site may use 3 months to see enough queries; every run that grades a verdict uses the configured window, because a 3-month window blurs the date the change went live. For decay, a second export of the preceding period of equal length. Optional: a page×query table and a not-indexed URL list. Exact clicks in [references/export-howto.md](references/export-howto.md). Without an export, send the user those steps and stop.
+   Save the files as `exports/YYYY-MM-DD-gsc.zip` (and `-prev.zip`) in the workspace, and write the week's `Source:` line as `exports/<file> (<start> to <end>, <length>)`; `seo-and-now` reads that line.
+   Done when a path to a zip or folder containing the queries and pages tables exists and the `Source:` line names the period.
 
 2. **Grade earlier actions.** `python3 <seo-setup>/scripts/scaffold.py <domain> --due` (path relative to the `seo-setup` skill) lists rows whose verify-after date has passed. For each, find the row's URL and query in the new export and fill the week's "Outcomes of earlier actions" table: Then from the log, Now from the export, Verdict `won` when the bucket's metric moved the right way (position for `striking` and `unindexed`, CTR for `ctr`, clicks for `decay` and `content`), `no-change` otherwise; `verify` only when the export window does not yet cover the verify date. Update the row's Status in its original file.
    Done when no due row is left unsettled.
@@ -27,11 +27,19 @@ Reads `docs/seo/<domain>/config.md` for `brand_regex`, `expected_ctr_1`, `min_im
    `--brand`, `--expected-ctr-1`, and `--min-impressions` come from `config.md`. Small sites: `--min-impressions 20`. Large sites: 200 or more. The export's locale does not matter. `--brand` keeps navigational queries out of the striking-distance and CTR buckets; `--expected-ctr-1` scales the CTR curve to the site's own position-1 CTR (read it off the top non-brand queries; write the value back to `config.md` when it changes).
    Done when the report prints six buckets.
 
-4. **Decide one action per row** with [references/actions.md](references/actions.md). The action per bucket is fixed; the judgement is whether the query matches the page's intent. Rows where the query means something other than what the page offers get skipped, with the note "different intent".
-   Done when the top 10 rows across buckets 1–4 each carry URL, query, action, and the concrete new title, H1, or section heading where the action calls for one.
+4. **Decide one action per row** with [references/actions.md](references/actions.md). The action per bucket is fixed; the judgement is whether the query matches the page's intent. Rows where the query means something other than what the page offers get skipped, with the note "different intent". Before writing a new title or meta, read what the page serves now:
 
-5. **Deliver** one table ordered by expected gain: missed clicks for CTR gaps, impressions for striking distance, lost clicks for decay. Rows that need writing go to `seo-content`; rows that need merging follow the merge recipe in actions.md; unindexed rows get internal links and a Request indexing. Every row the user accepts becomes an `Actions` row in this week's log (`scaffold.py <domain> --log` gives the path and the next id), Status `todo`; a row applied in this session gets `applied`, today's date, and `verify after` 14 days out for `ctr`, 28 days for the rest.
-   Done when the log holds one row per accepted action.
+   ```bash
+   python3 scripts/snippets.py URL --query "the row's query"
+   ```
+
+   It fetches with a Googlebot user agent and prints title, meta description, H1, og:title, dateModified, plus flags (`meta-is-title`, `title-no-query`, `h1-missing`, `h1-linebreak`, `title-multiple`, `og-title-differs`, `meta-long`, `meta-number-absent`). Every price or number in the meta description is checked against the page text: `meta-number-absent` means the snippet promises what the page does not say, and that row's action starts with the correction. A new title always comes with the matching og:title; a new H1 without a line break.
+   Done when the top 10 rows across buckets 1–4 each carry URL, query, the current snippet fields, action, and the concrete new title, meta, H1, or section heading where the action calls for one.
+
+5. **Deliver** one table ordered by expected gain: missed clicks for CTR gaps, impressions for striking distance, lost clicks for decay. Rows that need writing go to `seo-content`; rows that need merging follow the merge recipe in actions.md; unindexed rows get internal links and a request for indexing. Every row the user accepts becomes an `Actions` row in this week's log (`scaffold.py <domain> --log` gives the path and the next id), Status `todo`; a row applied in this session gets `applied`, today's date, and `verify after` 14 days out for `ctr`, 28 days for the rest.
+   Site in the repository: apply title, meta, and H1 rows in `head_template` and the page source. Site in a hosted CMS (`framework` in `config.md`, `head_template` blank): the accepted rows go as one prompt to the session on the server, format and rules in the `seo` skill's [references/remote-session.md](../seo/references/remote-session.md); its report fills the Outcome column, and every item under "Open, owner decision" gets its own `tech` row with Status `todo`.
+   After the changes are live: `bash <seo-connect>/scripts/indexnow.sh <domain> URL [URL ...]` submits them to IndexNow (Bing and the other participants; Google is not one). Google indexing is the owner's click, "Request indexing" in URL Inspection per URL, with a daily limit Google does not number; the Indexing API is limited to `JobPosting` and `BroadcastEvent` pages. Ask the owner for it and note the date in the log row.
+   Done when the log holds one row per accepted action and the IndexNow status code is in the log.
 
 ## Interpretation
 
