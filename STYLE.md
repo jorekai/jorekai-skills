@@ -32,6 +32,7 @@ Rules for every file in this repository and for every agent or person who edits 
 
 - Nothing about a customer: no domain, brand, key, analytics id, server path, or workspace under `docs/`. Site workspaces live in a private repository per site. Examples use `example.com` and made-up brands.
 - Customer names to reject sit in `.check_public.local` (gitignored, one regex per line), never in a tracked file.
+- No credentials of any kind, not even for examples: `scripts/check.sh` runs gitleaks over the whole history, CI runs it on every push, and GitHub push protection blocks a push that carries a known token format.
 
 ## Commits
 

@@ -30,6 +30,13 @@ filler='\b(delve|leverage|seamless(ly)?|robust|crucial|game-changer|unlock|in to
 while IFS= read -r line; do hit "filler: $line"; done < <(echo "$style" | xargs grep -niE "$filler" 2>/dev/null)
 while IFS= read -r line; do hit "emoji: $line"; done < <(echo "$style" | xargs perl -ne 'print "$ARGV:$.:$_" if /[\x{1F300}-\x{1FAFF}\x{2600}-\x{27BF}]/; close ARGV if eof' 2>/dev/null)
 
+# Secret scan over the whole history when gitleaks is installed (CI always runs it).
+if command -v gitleaks >/dev/null; then
+  gitleaks git . --no-banner --redact --exit-code 1 >/dev/null 2>&1 && echo "pass: gitleaks" || hit "gitleaks found a secret: run gitleaks git . --redact"
+else
+  echo "warning: gitleaks not installed, secret scan skipped (brew install gitleaks)" >&2
+fi
+
 (( fail )) && exit 1
 [[ "${1:-}" == "--no-tests" ]] && { echo ok; exit 0; }
 

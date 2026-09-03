@@ -121,7 +121,7 @@ The workspace belongs in the site's repository. A site that lives in no reposito
 ## Maintenance
 
 - `STYLE.md` is the rulebook for prose, code, commits, and private data. Every agent reads it through `AGENTS.md` (Codex, Cursor, Gemini) or `CLAUDE.md` (Claude Code).
-- `bash scripts/check.sh` before every commit: style, private data, then every offline test and syntax check. Prints `ok` or one line per hit. Customer names to reject live in `.check_public.local` (gitignored, one regex per line); CI writes it from the secret `CHECK_PUBLIC_LOCAL`.
+- `bash scripts/check.sh` before every commit: style, private data, then every offline test and syntax check. Runs gitleaks over the history when installed (`brew install gitleaks`); CI always does. Prints `ok` or one line per hit. Customer names to reject live in `.check_public.local` (gitignored, one regex per line); CI writes it from the secret `CHECK_PUBLIC_LOCAL`.
 - Every line in a SKILL.md must change behaviour; what the model does anyway goes.
 - The router must not lie: whoever adds, renames, or changes a sub-skill checks `skills/seo/seo/SKILL.md` and the table above in the same commit, and bumps the plugin version.
 - Years, tool names, platform behaviour, and Google features live only in `references/`; every such claim has a row in `skills/seo/seo/references/sources.md` with URL and check date. Unverified means: labelled as a heuristic, or removed.
