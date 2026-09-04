@@ -9,6 +9,7 @@ Tick every line before publishing.
 - [ ] Slug: lowercase, hyphens, 3–6 words, the shortened H1. Existing slug stays unless a 301 is set.
 - [ ] Self-referencing canonical, `lang`, viewport (template-level; verify once with `jorekai-seo:tech-audit`).
 - [ ] `datePublished` and `dateModified` in the Article JSON-LD equal the visible dates; never a future date, never the date of the event described.
+- [ ] Structured data only for what the page is (`Article`, `Product`, `Organization`, `BreadcrumbList`), and every value in it stands visibly on the page. No rating or review markup for the site's own business: an entity that controls its own reviews earns no stars, and invented reviews break Google's structured-data content rules. `FAQPage` and `HowTo` earn no rich result; write the FAQ, skip the markup.
 - [ ] `<meta name="robots" content="max-image-preview:large">` when the page should appear in Discover with a large image; the hero image at least 1200 px wide.
 
 ## Body

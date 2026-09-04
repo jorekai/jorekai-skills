@@ -1,6 +1,6 @@
 ---
 name: tech-audit
-description: Audit a URL or whole site for technical SEO and indexability: runs scripts/audit.py (bot rendering, title/meta/H1/canonical, noindex conflicts, robots.txt, sitemap lastmod, redirects and their type, hreflang, dates, images, host variants, soft 404, pagination, duplicates, orphans) and prescribes fixes. Use when asked to check a site for SEO, why a page is not indexed, before a launch, or for canonical, redirect, sitemap, or robots questions.
+description: Audit a URL or whole site for technical SEO and indexability: runs scripts/audit.py (bot rendering, title/meta/H1/canonical, noindex conflicts, robots.txt, sitemap lastmod, redirects and their type, hreflang, dates, structured data, images, host variants, soft 404, pagination, duplicates, orphans) and prescribes fixes. Use when asked to check a site for SEO, why a page is not indexed, before a launch, or for canonical, redirect, sitemap, or robots questions.
 ---
 
 # Tech SEO audit
@@ -37,6 +37,7 @@ With a workspace, `docs/seo/<domain>/config.md` names the files to fix (`head_te
 - `crawl.robots-disallowed` lists linked URLs the crawl did not fetch because `robots.txt` disallows them; the audit stops where Googlebot stops. A long list means internal links point into an area that can never rank.
 - The script reads HTML only. Speed is judged by GSC's Core Web Vitals report, not by the TTFB warning here.
 - `head.hreflang` checks self-reference, x-default, and code format on this page only; return links on the alternates are not fetched.
+- `head.json-ld` lists the types on the page. `head.schema-invalid` means a block did not parse, so Google reads none of it. The other two are about what the markup earns, not about syntax: `head.schema-no-rich-result` names markup Google shows nothing for any more, and `head.schema-review` names a rating on a node outside the types stars are shown for, which is where a site rates itself. Field-level validation stays with Google's Rich Results Test; the script reports what is there.
 - `site.sitemap-lastmod` fires when 90 % or more of URLs share one date: a generator stamping the build time. Google discards lastmod it cannot trust, so that sitemap loses its freshness signal.
 - `crawl.tracking-params`: internal links with `utm_*` on the site's own URLs. Each variant is a crawlable duplicate of the clean URL; it also shows up under `crawl.not-in-sitemap`. Fix the links, not the sitemap.
 - `crawl.orphans` on a shop or CMS often lists pages that exist only in the sitemap (old campaigns, location pages without a hub). Decide per URL: link it from a related page, or drop it from the sitemap and `noindex` it.

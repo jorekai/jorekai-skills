@@ -333,5 +333,40 @@ class Rendered(unittest.TestCase):
         self.assertEqual(rep.items[0]["level"], "FAIL")
 
 
+class Schema(unittest.TestCase):
+    """head.schema-*: what the markup is, what it cannot earn, and a rating a site gives itself."""
+
+    def check(self, *blocks):
+        body = ("<html><head><title>t</title>"
+                + "".join(f"<script type='application/ld+json'>{b}</script>" for b in blocks)
+                + "</head><body><h1>t</h1></body></html>")
+        rep = audit.Report()
+        audit.check_schema(audit.parse(body, HOST + "/"), rep, "Page")
+        return {i["id"]: i for i in rep.items}
+
+    def test_types_are_named_including_the_graph(self):
+        ids = self.check('{"@graph":[{"@type":"Article"},{"@type":"BreadcrumbList"}]}')
+        self.assertEqual(ids["head.json-ld"]["data"], ["Article", "BreadcrumbList"])
+
+    def test_markup_without_a_rich_result_is_named(self):
+        ids = self.check('{"@type":"FAQPage"}',
+                         '{"@type":"WebSite","potentialAction":{"@type":"SearchAction"}}')
+        self.assertIn("FAQPage", ids["head.schema-no-rich-result"]["message"])
+        self.assertIn("SearchAction", ids["head.schema-no-rich-result"]["message"])
+
+    def test_a_business_that_rates_itself_is_flagged(self):
+        ids = self.check('{"@type":"LocalBusiness","aggregateRating":{"@type":"AggregateRating","ratingValue":5}}')
+        self.assertEqual(ids["head.schema-review"]["level"], "WARN")
+
+    def test_a_product_rating_is_left_alone(self):
+        ids = self.check('{"@type":"Product","aggregateRating":{"@type":"AggregateRating","ratingValue":5}}')
+        self.assertNotIn("head.schema-review", ids)
+
+    def test_a_block_that_is_not_json_is_named_and_the_others_still_read(self):
+        ids = self.check('{"@type":"Article",}', '{"@type":"Organization","name":"a"}')
+        self.assertIn("block 1 of 2", ids["head.schema-invalid"]["message"])
+        self.assertEqual(ids["head.json-ld"]["data"], ["Organization"])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=1)

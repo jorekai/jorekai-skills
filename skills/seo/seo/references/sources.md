@@ -55,6 +55,9 @@ Claims in this skill set that rest on a documented fact, with the source and the
 | Sitelinks are automated | https://developers.google.com/search/docs/appearance/sitelinks | 2026-09-02 |
 | Sitelinks search box "no longer available" (removed November 2024) | https://developers.google.com/search/docs/appearance/structured-data/sitelinks-searchbox | 2026-09-02 |
 | Breadcrumb rich result "available on desktop" only (mobile removal January 2025) | https://developers.google.com/search/docs/appearance/structured-data/breadcrumb | 2026-09-02 |
+| Self-serving reviews: an entity that "controls the reviews about itself" is "ineligible for star review feature" with `LocalBusiness` or any other `Organization` type; review snippets are supported for Book, Course, Event, LocalBusiness, Movie, Product, Recipe, SoftwareApplication | https://developers.google.com/search/docs/appearance/structured-data/review-snippet | 2026-09-04 |
+| Structured data content rules: "Don't mark up content that is not visible to readers of the page"; "Don't mark up irrelevant or misleading content, such as fake reviews" | https://developers.google.com/search/docs/appearance/structured-data/sd-policies | 2026-09-04 |
+| The features structured data can earn are the 25 in Google's gallery; FAQ and HowTo are not among them | https://developers.google.com/search/docs/appearance/structured-data/search-gallery | 2026-09-04 |
 | Featured snippets need "enough text"; no markup | https://developers.google.com/search/docs/appearance/featured-snippets | 2026-09-02 |
 | Sullivan (Jan 2020): featured-snippet page not repeated on page 1 | https://www.searchenginejournal.com/google-web-pages-in-featured-snippets-not-repeated-in-organic-listings/344748/ | 2026-09-02 |
 | Ahrefs (863,000 keywords, 4M AI Overview URLs, March 2026): 38 % of cited pages in the organic top 10 | https://www.searchenginejournal.com/google-ai-overview-citations-from-top-ranking-pages-drop-sharply/568637/ | 2026-09-02 |

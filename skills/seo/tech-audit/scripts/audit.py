@@ -259,6 +259,39 @@ def is_cart(url):
     return bool(CART_RE.search(url))
 
 
+def check_schema(p, rep, section):
+    """What the structured data on the page is, and what it cannot earn."""
+    if not p.jsonld:
+        rep.add(section, "INFO", "head.json-ld", "No JSON-LD structured data")
+        return
+    nodes = []
+    for i, text in enumerate(p.jsonld_texts, 1):
+        try:
+            schema_nodes(json.loads(text), nodes)
+        except ValueError as e:
+            rep.add(section, "WARN", "head.schema-invalid",
+                    f"JSON-LD block {i} of {p.jsonld} is not valid JSON and is ignored whole: {e}")
+    seen = {}
+    for n in nodes:
+        for t in node_types(n):
+            seen.setdefault(t.lower(), t)
+    if not seen:
+        return
+    rep.add(section, "INFO", "head.json-ld",
+            f"{p.jsonld} JSON-LD block(s), types: {', '.join(seen[k] for k in sorted(seen))}",
+            data=sorted(seen.values()))
+    dead = [f"{seen[k]} ({why})" for k, why in NO_RICH_RESULT.items() if k in seen]
+    if dead:
+        rep.add(section, "WARN", "head.schema-no-rich-result",
+                "Markup that earns no rich result: " + "; ".join(dead))
+    rated = sorted({seen[t.lower()] for n in nodes if "aggregateRating" in n or "review" in n
+                    for t in node_types(n) if t.lower() not in REVIEWABLE})
+    if rated:
+        rep.add(section, "WARN", "head.schema-review",
+                f"Rating or review markup on {', '.join(rated)}: a page that rates the entity running it "
+                "is ineligible for the star review feature, and invented reviews are a policy violation")
+
+
 def same_site(a, b):
     ha = urllib.parse.urlsplit(a).netloc.lower().removeprefix("www.")
     hb = urllib.parse.urlsplit(b).netloc.lower().removeprefix("www.")
@@ -274,6 +307,41 @@ def robots_directives(page, headers):
     All three carry the same directives, so a check that reads one of them misses the other two."""
     return " ".join((page.metas.get("robots", ""), page.metas.get("googlebot", ""),
                      headers.get("x-robots-tag", ""))).lower()
+
+
+# Types Google shows stars for. A rating on any other node is a site rating itself: "If the entity
+# that's being reviewed controls the reviews about itself, their pages that use LocalBusiness or any
+# other type of Organization structured data are ineligible for star review feature" (Google).
+REVIEWABLE = {"product", "book", "course", "event", "movie", "recipe", "softwareapplication",
+              "mobileapplication", "webapplication", "game", "videogame", "mediaobject",
+              "musicplaylist", "musicrecording", "episode", "creativeworkseason", "creativeworkseries"}
+
+# Markup that earns no rich result on an ordinary site. Each line has a row in seo/references/sources.md.
+NO_RICH_RESULT = {
+    "faqpage": "FAQ rich results only for well-known government and health sites since 2023",
+    "howto": "HowTo rich results deprecated in 2023",
+    "searchaction": "the sitelinks search box was removed in November 2024",
+}
+
+
+def schema_nodes(obj, out):
+    """Every node carrying an @type in a JSON-LD document, @graph and nesting included."""
+    if isinstance(obj, list):
+        for x in obj:
+            schema_nodes(x, out)
+    elif isinstance(obj, dict):
+        if "@type" in obj:
+            out.append(obj)
+        for v in obj.values():
+            schema_nodes(v, out)
+    return out
+
+
+def node_types(node):
+    t = node.get("@type")
+    if isinstance(t, str):
+        return [t]
+    return [x for x in t if isinstance(x, str)] if isinstance(t, list) else []
 
 
 class Report:
@@ -443,8 +511,7 @@ def check_page(url, rep, timeout, delay, section="Page", compare_ua=True):
             rep.add(section, "WARN", "head.dates", f"dateModified {dates['dateModified']} is before datePublished {dates['datePublished']}")
         else:
             rep.add(section, "INFO", "head.dates", f"JSON-LD dates {dates}; the visible date on the page must match them (not checked)")
-    if not p.jsonld:
-        rep.add(section, "INFO", "head.json-ld", "No JSON-LD structured data")
+    check_schema(p, rep, section)
     missing_og = [k for k in ("og:title", "og:description", "og:image") if k not in p.metas]
     if missing_og:
         rep.add(section, "INFO", "head.open-graph", f"Missing Open Graph tags: {', '.join(missing_og)}")

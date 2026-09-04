@@ -2,6 +2,12 @@
 
 One entry per plugin version. The version at the top equals `version` in `.claude-plugin/plugin.json`; `scripts/check.sh` checks that. Dates are ISO.
 
+## 1.7.0 (2026-09-04)
+
+- Added: `audit.py` reads the JSON-LD on the page. `head.json-ld` lists the types; `head.schema-invalid` names a block that does not parse, which Google then reads none of; `head.schema-no-rich-result` names `FAQPage`, `HowTo`, and the sitelinks `SearchAction`; `head.schema-review` names a rating on a node outside the types stars are shown for, the shape a site rating itself takes.
+- Added: fixes for the three new check ids, and the on-page checklist asks for markup that matches what stands on the page.
+- Added: source rows for self-serving reviews, the structured-data content rules, and the feature gallery.
+
 ## 1.6.0 (2026-09-04)
 
 - Added: `gsc_opportunities.py` prints the site baseline, the median position, CTR, and click change of every page in both exports. A verdict is the row's change minus that median, so seasonality and site-wide drift stay out of the log.
