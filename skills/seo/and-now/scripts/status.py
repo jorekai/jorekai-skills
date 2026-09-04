@@ -165,7 +165,7 @@ def decide(s, today):
                    f"(+{TECH_VERIFY_DAYS} days): " + ", ".join(r.get("id", "?") for r in tech_todo))
     if s["due"]:
         now.append(f"`jorekai-seo:gsc-review`: {len(s['due'])} row(s) past their verify date need a verdict "
-                   "(`won` / `no-change`) from a fresh export: " + ", ".join(r.get("id", "?") for r in s["due"]))
+                   "(`won` / `no-change` / `too-small`) from a fresh export: " + ", ".join(r.get("id", "?") for r in s["due"]))
     exp = s["export"]
     if exp is None:
         step = ("export Search Console (Performance > Export, 28 days, plus the previous 28 days) into exports/, "
@@ -196,7 +196,7 @@ def decide(s, today):
         if not shipped:
             now.append(f"`jorekai-seo:review` on drafts/{slug}.md, then ship it, request indexing, and log a `content` row")
     for r in s["rows"]:
-        if r.get("bucket") != "content" or r.get("status") not in ("applied", "verify", "won", "no-change"):
+        if r.get("bucket") != "content" or r.get("status") not in ("applied", "verify", "won", "no-change", "too-small"):
             continue
         url = r.get("url", "")
         for bucket, skill in (("links", "jorekai-seo:links"), ("distribution", "jorekai-seo:distribution")):

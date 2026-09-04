@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Offline tests for this skill's scripts: gsc_opportunities.py (brand filter on query rows
-only, locale-safe numbers, single-column exports) and snippets.py (non-HTTP URL and redirect
-target, title-no-query on content words).
+only, locale-safe numbers, single-column exports, site baseline, CTR calibration) and
+snippets.py (non-HTTP URL and redirect target, title-no-query on content words).
 
 Run: python3 skills/seo/gsc-review/scripts/test_gsc.py
 No network: a fake export directory with Queries.csv and Pages.csv is written to a temp folder.
@@ -78,6 +78,64 @@ class ExportTest(unittest.TestCase):
         gap = [r["key"] for r in g.ctr_gap(self.queries, Args())]
         self.assertIn("bootsführerschein kosten", gap)
         self.assertNotIn("acme", gap)
+
+
+class BaselineTest(unittest.TestCase):
+    """Site-wide drift is the yardstick: one page counts as won only above the median page."""
+
+    @staticmethod
+    def pages(n, clicks, position, ctr=0.05, impressions=1000):
+        return [{"key": f"{HOST}/p{i}/", "clicks": clicks, "impressions": impressions,
+                 "ctr": ctr, "position": position} for i in range(n)]
+
+    def test_median_change_of_all_pages(self):
+        b = g.baseline(self.pages(12, 90, 5.5, 0.045), self.pages(12, 100, 5.0, 0.05), Args())
+        self.assertEqual(b["n"], 12)
+        self.assertAlmostEqual(b["position"], 0.5)
+        self.assertAlmostEqual(b["ctr"], -0.005)
+        self.assertAlmostEqual(b["clicks"], -0.1)
+
+    def test_too_few_pages_give_no_baseline(self):
+        b = g.baseline(self.pages(4, 90, 5.5), self.pages(4, 100, 5.0), Args())
+        self.assertEqual(b["n"], 4)
+        self.assertIsNone(b["position"])
+
+    def test_pages_under_the_impression_threshold_stay_out(self):
+        b = g.baseline(self.pages(12, 90, 5.5, impressions=10), self.pages(12, 100, 5.0, impressions=10), Args())
+        self.assertEqual(b["n"], 0)
+
+    def test_pages_with_a_handful_of_clicks_do_not_move_the_click_median(self):
+        b = g.baseline(self.pages(12, 0, 5.0, ctr=0.05), self.pages(12, 2, 5.0, ctr=0.05), Args())
+        self.assertEqual(b["n_clicks"], 0)
+        self.assertIsNone(b["clicks"])
+        self.assertAlmostEqual(b["position"], 0.0)
+
+
+class CalibrationTest(unittest.TestCase):
+    """--expected-ctr-1 comes from the site's own non-brand queries at position 1."""
+
+    @staticmethod
+    def rows(keys, ctr, position=1.2, impressions=500):
+        return [{"key": k, "clicks": int(impressions * ctr), "impressions": impressions,
+                 "ctr": ctr, "position": position} for k in keys]
+
+    def test_median_ctr_of_the_top_queries(self):
+        c = g.ctr_calibration(self.rows([f"boot mieten {i}" for i in range(6)], 0.12), Args())
+        self.assertEqual(c["n"], 6)
+        self.assertAlmostEqual(c["ctr_1"], 0.12)
+
+    def test_brand_queries_do_not_calibrate(self):
+        c = g.ctr_calibration(self.rows(["acme"] * 6, 0.4), Args())
+        self.assertEqual(c["n"], 0)
+        self.assertIsNone(c["ctr_1"])
+
+    def test_under_five_queries_suggest_nothing(self):
+        c = g.ctr_calibration(self.rows(["boot a", "boot b", "boot c"], 0.12), Args())
+        self.assertIsNone(c["ctr_1"])
+
+    def test_position_two_is_not_position_one(self):
+        c = g.ctr_calibration(self.rows([f"boot mieten {i}" for i in range(6)], 0.12, position=2.0), Args())
+        self.assertEqual(c["n"], 0)
 
 
 class SingleColumnTest(unittest.TestCase):

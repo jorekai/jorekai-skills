@@ -33,18 +33,20 @@ Source: exports/2026-09-01-gsc.zip vs exports/2026-08-04-gsc.zip
 
 ## Outcomes of earlier actions
 
-| id | URL | Applied | Then | Now | Verdict |
-|---|---|---|---|---|---|
-| 2026-W34-01 | /pricing | 2026-08-20 | pos 11.2, CTR 1.8 % | pos 8.9, CTR 2.6 % | won |
+| id | URL | Applied | Then | Now | Baseline | Verdict |
+|---|---|---|---|---|---|---|
+| 2026-W34-01 | /pricing | 2026-08-20 | pos 11.2 | pos 8.9 | pos +0.4 | won |
 
 ## Actions
 
-| id | Bucket | URL | Query | Action | Status | Applied | Verify after | Outcome |
-|---|---|---|---|---|---|---|---|---|
-| 2026-W36-01 | striking | /blog/x | x tool | query into title and H1, new section "y" | applied | 2026-09-02 | 2026-09-16 | |
+| id | Bucket | URL | Query | Action | Then | Status | Applied | Verify after | Outcome |
+|---|---|---|---|---|---|---|---|---|---|
+| 2026-W36-01 | striking | /blog/x | x tool | query into title and H1, new section "y" | pos 12.4, 210 impr. | applied | 2026-09-02 | 2026-09-16 | |
 ```
 
-Status, in order: `todo`, then `applied` (date set), then `verify` (verify-after date reached, outcome pending), then one of `won`, `no-change`, `dropped`. A `won` row names the metric that moved in Outcome; `no-change` after two verify windows becomes `dropped` with the reason in Outcome.
+Status, in order: `todo`, then `applied` (date set), then `verify` (verify-after date reached, outcome pending), then one of `won`, `no-change`, `too-small`, `dropped`. A `won` row names the metric that moved in Outcome; `no-change` after two verify windows becomes `dropped` with the reason in Outcome; `too-small` means the row stayed under `min_impressions` in both exports, so the change was never testable.
+
+`Then` holds the bucket's metric and the impressions at the moment the row was applied, read from the export in hand. `Baseline` in the outcomes table holds the median change of all pages over the same two exports. A verdict is the row's change minus that median: without both columns it is a guess.
 
 Buckets: `striking`, `ctr`, `decay`, `cannibal`, `unindexed`, `tech`, `links`, `content`, `distribution`, `diagnose`.
 

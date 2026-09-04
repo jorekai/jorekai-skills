@@ -21,7 +21,7 @@ Every skill reads and writes `docs/seo/<domain>/` in the site's repository: `con
 3. `jorekai-seo:grill`: interview, writes `strategy.md` (clusters, competitors, evidence) and `glossary.md`.
 4. `jorekai-seo:tech-audit --crawl` until zero FAIL, then [references/launch-checklist.md](references/launch-checklist.md).
 
-**Weekly loop** (15 minutes): export GSC; `jorekai-seo:gsc-review` (grades last weeks' actions from the log first); top row via `jorekai-seo:content`; `jorekai-seo:review` before it ships; 2 internal links from older pages; request indexing (IndexNow by the agent via `connect/scripts/indexnow.sh`; Google "Request indexing" by the owner in URL Inspection, the Indexing API covers only `JobPosting` and `BroadcastEvent`); `jorekai-seo:distribution`. Every step leaves a log row.
+**Weekly loop** (15 minutes): export GSC; `jorekai-seo:gsc-review` (site baseline from both exports, then the verdicts on last weeks' rows, then the new buckets); top row via `jorekai-seo:content`; `jorekai-seo:review` before it ships; 2 internal links from older pages; request indexing (IndexNow by the agent via `connect/scripts/indexnow.sh`; Google "Request indexing" by the owner in URL Inspection, the Indexing API covers only `JobPosting` and `BroadcastEvent`); `jorekai-seo:distribution`. Every step leaves a log row.
 
 **Site not in a repository** (hosted CMS): fixes and snippet rows go to a session on the server, prompt and report format in [references/session-contract.md](references/session-contract.md), stack recipes in [references/stacks/](references/stacks/).
 

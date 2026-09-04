@@ -14,6 +14,10 @@ Buckets:
   decay         pages that lost clicks versus --previous (same length period)
   cannibal      one query served by several of your pages (needs --page-queries)
   not-indexed   URLs from --not-indexed, listed for action
+
+With --previous the report also carries the site baseline: the median change of every page
+present in both exports. One page's change counts only against that line. It suggests
+--expected-ctr-1 from the site's own non-brand queries at position 1 as well.
 """
 import argparse
 import csv
@@ -31,6 +35,11 @@ import zipfile
 # desktop GSC data, Dec 2025: position 1 at 7.3 % without and 1.6 % with an AI Overview.
 # Pass --expected-ctr-1 to scale the curve to the site's own top queries.
 EXPECTED_CTR = {1: .28, 2: .15, 3: .11, 4: .08, 5: .07, 6: .05, 7: .04, 8: .03, 9: .03, 10: .025}
+
+# A median over a handful of rows is noise, not a baseline. The same holds for the suggestion.
+MIN_BASELINE_N = 10
+MIN_BASELINE_CLICKS = 10        # a page with few clicks makes the click ratio jump between windows
+MIN_CALIBRATION_N = 5
 
 # --------------------------------------------------------------------------- parsing
 
@@ -199,6 +208,46 @@ def decay(now_pages, prev_pages, a):
     return sorted(hits, key=lambda r: -r["lost"])
 
 
+def median(xs):
+    s = sorted(xs)
+    if not s:
+        return None
+    mid = len(s) // 2
+    return s[mid] if len(s) % 2 else (s[mid - 1] + s[mid]) / 2
+
+
+def baseline(now_pages, prev_pages, a):
+    """Median change of every page in both exports: the yardstick for one page's change.
+
+    Seasonality, a Google update and site-wide drift move all pages at once. A page that
+    gained 5 % in a period when the site gained 12 % lost ground. Pages changed in the period
+    are a small share of all pages, so no list of them is needed: the median ignores them.
+    """
+    prev = {r["key"]: r for r in prev_pages}
+    pos, ctr, clicks = [], [], []
+    for r in now_pages:
+        p = prev.get(r["key"])
+        if not p or p["impressions"] < a.min_impressions:
+            continue
+        pos.append(r["position"] - p["position"])
+        ctr.append(r["ctr"] - p["ctr"])
+        if p["clicks"] >= MIN_BASELINE_CLICKS:
+            clicks.append((r["clicks"] - p["clicks"]) / p["clicks"])
+    enough = len(pos) >= MIN_BASELINE_N
+    return {"n": len(pos), "n_clicks": len(clicks),
+            "position": median(pos) if enough else None,
+            "ctr": median(ctr) if enough else None,
+            "clicks": median(clicks) if len(clicks) >= MIN_BASELINE_N else None}
+
+
+def ctr_calibration(rows, a):
+    """The site's own CTR at position 1: the value for --expected-ctr-1 and for config.md."""
+    top = [r for r in rows if r["position"] <= 1.5 and r["impressions"] >= a.min_impressions
+           and not is_brand(r["key"], a)]
+    return {"n": len(top),
+            "ctr_1": median([r["ctr"] for r in top]) if len(top) >= MIN_CALIBRATION_N else None}
+
+
 def cannibal(pq, a):
     by_q = {}
     for r in pq:
@@ -244,6 +293,25 @@ def render(res, a):
                  f"({fmt_pct(b['clicks'] / b['total_clicks']) if b['total_clicks'] else '0%'}). Excluded from buckets 1 and 3.")
     o.append("Expected CTR is a heuristic curve (scale " + f"{CTR_SCALE:.2f}" + "). Queries with an AI Overview sit far below it; "
              "in GSC every link inside one AI Overview shares a single position, so a low CTR at a good position is often the AI Overview, not the snippet.")
+    cal = res["calibration"]
+    if cal["ctr_1"] is not None:
+        o.append(f"Suggested --expected-ctr-1: {cal['ctr_1']:.2f} (median CTR of {cal['n']} non-brand queries at position 1.0 to 1.5).")
+    else:
+        o.append(f"No --expected-ctr-1 suggestion: {cal['n']} non-brand queries at position 1.0 to 1.5, {MIN_CALIBRATION_N} needed.")
+    o.append("")
+    o.append("## Site baseline: subtract it before a single page counts as won")
+    o.append("")
+    b = res["baseline"]
+    if b is None:
+        o.append("_pass --previous with the export for the preceding period of equal length_")
+    elif b["position"] is None:
+        o.append(f"_{b['n']} pages in both exports reach the impression threshold, {MIN_BASELINE_N} needed_")
+    else:
+        o.append(table(["Metric", "Median change, all pages", "Pages"],
+                       [("Position", f"{b['position']:+.1f} (a higher number is worse)", b["n"]),
+                        ("CTR", f"{b['ctr'] * 100:+.2f} pp", b["n"]),
+                        ("Clicks", f"{b['clicks'] * 100:+.1f} %" if b["clicks"] is not None
+                         else f"under {MIN_BASELINE_N} pages had {MIN_BASELINE_CLICKS}+ clicks before", b["n_clicks"])]))
     o.append("")
     o.append("## 1. Striking distance (queries): add the exact query to title/H1/H2, add the section top results have")
     o.append("")
@@ -324,10 +392,12 @@ def main():
     res = {"n_queries": len(queries), "n_pages": len(pages), "brand": brand,
            "striking_queries": striking(queries, a), "striking_pages": striking(pages, a, is_query=False),
            "ctr_gap_queries": ctr_gap(queries, a), "ctr_gap_pages": ctr_gap(pages, a, is_query=False),
-           "decay": None, "cannibal": None, "not_indexed": None}
+           "decay": None, "cannibal": None, "not_indexed": None, "baseline": None,
+           "calibration": ctr_calibration(queries, a)}
     if a.previous:
         _, prev_pages = split_export(load_export(a.previous))
         res["decay"] = decay(pages, prev_pages, a)
+        res["baseline"] = baseline(pages, prev_pages, a)
     if a.page_queries:
         res["cannibal"] = cannibal(load_page_queries(a.page_queries), a)
     if a.not_indexed:

@@ -2,6 +2,15 @@
 
 One entry per plugin version. The version at the top equals `version` in `.claude-plugin/plugin.json`; `scripts/check.sh` checks that. Dates are ISO.
 
+## 1.6.0 (2026-09-04)
+
+- Added: `gsc_opportunities.py` prints the site baseline, the median position, CTR, and click change of every page in both exports. A verdict is the row's change minus that median, so seasonality and site-wide drift stay out of the log.
+- Added: the report suggests `expected_ctr_1` from the site's own non-brand queries at position 1, with the number of queries behind it; under five queries it says so instead of suggesting.
+- Added: verdict `too-small` for a row that stays under `min_impressions` in both exports. The change was never testable, and forcing `won` or `no-change` onto that data taught the log noise.
+- Added: the log's `Actions` table carries `Then`, the bucket's metric and impressions at the moment the row was applied, and the `Outcomes` table carries `Baseline`. Without both the verdict was a guess.
+- Changed: `gsc-review` runs the script before it grades, because grading now reads the baseline; step 5 reads the page back with `snippets.py`, so a change a cache swallowed is not logged as applied.
+- Changed: `diagnose` step 2 and hypothesis 1 read the same baseline: a page that fell no further than the median page did not drop, the site did.
+
 ## 1.5.0 (2026-09-04)
 
 - Fixed: `render.bot-html` counts the text outside `header`, `nav`, `footer`, and `aside` and looks for an empty framework mount point. A shell with a menu, a footer, and six internal links cleared every earlier rule with 364 characters of chrome; it now fails, and the message names the signals that fired.
