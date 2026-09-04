@@ -2,6 +2,22 @@
 
 One entry per plugin version. The version at the top equals `version` in `.claude-plugin/plugin.json`; `scripts/check.sh` checks that. Dates are ISO.
 
+## 1.5.0 (2026-09-04)
+
+- Fixed: `render.bot-html` counts the text outside `header`, `nav`, `footer`, and `aside` and looks for an empty framework mount point. A shell with a menu, a footer, and six internal links cleared every earlier rule with 364 characters of chrome; it now fails, and the message names the signals that fired.
+- Fixed: `audit.py --crawl` obeys `robots.txt` and lists what it skipped under `crawl.robots-disallowed`; the URL on the command line is still fetched, because a block on it is the finding (`decisions/0007`).
+- Fixed: `audit.py` and `snippets.py` follow a redirect only to `http://` or `https://`. `build_opener` installs a `FileHandler`, so a `Location: file:///...` was read into the report.
+- Fixed: the crawl reads `noindex` from meta robots, meta googlebot, and the `X-Robots-Tag` header, as the page check does; a page excluded by the header no longer shows up in the duplicate and canonical findings.
+- Fixed: `site.hsts` reads the header from the page's own response, not from the `robots.txt` response; an unreachable `robots.txt` reported a missing header that the site does send.
+- Fixed: `snippets.py` compares content words for `title-no-query` and names the missing ones, so a natural title no longer trips the flag on `how`, `to`, and `the`.
+- Fixed: `status.py` says when the log names an export that `exports/` does not hold in this checkout, and rejects a domain argument that carries a path separator.
+- Fixed: `indexnow.sh` refuses a URL with a quote, a backslash, or whitespace before it builds the JSON payload.
+- Added: `render.consent-wall` names the consent platform found on a page that is already thin.
+- Added: `check.sh` fails when a skill directory is missing from its theme's router or from `README.md`, and when a `jorekai-<theme>:<name>` written in any tracked file names no directory.
+- Added: `scaffold.py --log` prints the commit trailer `SEO-Log: <id>`; the workspace README documents it and `diagnose` hypothesis 5 reads it with `git log --grep`.
+- Added: `STYLE.md` rule for steps that fan out: one named table, one word limit, the reading stays in the subagent (`decisions/0008`).
+- Changed: `seo/references/remote-session.md` split into `references/session-contract.md` (the protocol, every stack) and `references/stacks/wordpress.md` (the recipes).
+
 ## 1.4.0 (2026-09-04)
 
 - Fixed: `render.bot-html` also fires when the raw HTML holds no internal `<a href>`. Measured on 28 live URLs on 2026-09-04, a single-page app passed the character threshold with 386 characters of boilerplate and zero links; three shells now fail and eight content pages still pass.

@@ -28,6 +28,7 @@ Rules for every file in this repository and for every agent or person who edits 
 - Numbers, units, ids, file names, and error strings are exact and unchanged.
 - Code goes in fenced blocks; prose names a file, function, or flag only when the reader must go there.
 - Headers: at most three levels. Under 500 words, no headers.
+- A step that fans out (a crawl, prospecting, SERP recon, a review) sends the reading to subagents and names what comes back: the columns of one table and a word limit. The pages a subagent read stay in its context, never in the caller's.
 
 ## Private data
 

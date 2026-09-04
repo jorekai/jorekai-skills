@@ -30,8 +30,12 @@ status=${body##*$'\n'}; body=${body%$'\n'*}
 if [[ "$status" != "200" ]]; then echo "key file $key_file answers $status, expected 200" >&2; exit 1; fi
 if [[ "$(printf '%s' "$body" | tr -d '[:space:]')" != "$key" ]]; then echo "key file body does not equal the key $key" >&2; exit 1; fi
 
-# 2. Every URL must sit on the key file's host (422 otherwise).
+# 2. Every URL must sit on the key file's host (422 otherwise) and must be a plain URL:
+# the JSON below is assembled with printf, and a quote, backslash, or space would break it.
 for u in "$@"; do
+  case "$u" in
+    *[\"\\]*|*[[:space:]]*) echo "$u contains a quote, a backslash, or whitespace: percent-encode it" >&2; exit 1 ;;
+  esac
   case "$u" in
     "https://$host/"*|"http://$host/"*) ;;
     *) echo "$u is not on $host; IndexNow answers 422 for it" >&2; exit 1 ;;

@@ -3,4 +3,6 @@
 .agents/
 docs/
 .check_public.local
+DO_NOT_COMMIT.md
 .vscode/
+__pycache__/

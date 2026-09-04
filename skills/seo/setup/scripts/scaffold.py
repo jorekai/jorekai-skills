@@ -4,7 +4,7 @@
 Usage:
   scaffold.py [--root docs/seo] DOMAIN [DOMAIN ...]   create folders and files; never overwrites
   scaffold.py [--root docs/seo] --check               list missing files per domain folder
-  scaffold.py [--root docs/seo] DOMAIN --log          print this week's log path (created if missing) and the next action id
+  scaffold.py [--root docs/seo] DOMAIN --log          print this week's log path (created if missing), the next action id, and its commit trailer
   scaffold.py [--root docs/seo] DOMAIN --due          print actions whose verify-after date has passed
 
 Stdlib only. Exit code 1 only when --check finds missing files.
@@ -122,8 +122,11 @@ def log(root, domain, today):
         p.write_text(render("log-week.md", WEEK=week, START=start.isoformat(), END=end.isoformat()),
                      encoding="utf-8")
     used = [int(n) for f in logdir.glob("*.md") for w, n in ID_RE.findall(f.read_text(encoding="utf-8")) if w == week]
+    nid = f"{week}-{(max(used) + 1) if used else 1:02d}"
     print(f"log: {p}")
-    print(f"next id: {week}-{(max(used) + 1) if used else 1:02d}")
+    print(f"next id: {nid}")
+    # The commit that carries out the action ends with this line, so `git log --grep` finds it later.
+    print(f"commit trailer: SEO-Log: {nid}")
 
 
 def split_cells(line):

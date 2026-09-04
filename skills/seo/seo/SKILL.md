@@ -23,7 +23,7 @@ Every skill reads and writes `docs/seo/<domain>/` in the site's repository: `con
 
 **Weekly loop** (15 minutes): export GSC; `jorekai-seo:gsc-review` (grades last weeks' actions from the log first); top row via `jorekai-seo:content`; `jorekai-seo:review` before it ships; 2 internal links from older pages; request indexing (IndexNow by the agent via `connect/scripts/indexnow.sh`; Google "Request indexing" by the owner in URL Inspection, the Indexing API covers only `JobPosting` and `BroadcastEvent`); `jorekai-seo:distribution`. Every step leaves a log row.
 
-**Site not in a repository** (hosted CMS): fixes and snippet rows go to a session on the server, prompt and report format in [references/remote-session.md](references/remote-session.md).
+**Site not in a repository** (hosted CMS): fixes and snippet rows go to a session on the server, prompt and report format in [references/session-contract.md](references/session-contract.md), stack recipes in [references/stacks/](references/stacks/).
 
 **Something dropped**: `jorekai-seo:diagnose`. Six hypotheses, one change, verify date in the log.
 
@@ -71,5 +71,5 @@ Each rung depends on the one before it.
 - New site or domain: [references/launch-checklist.md](references/launch-checklist.md), [references/domain-naming.md](references/domain-naming.md)
 - Five-minute fixes when there is no time for the loop: [references/five-minute-fixes.md](references/five-minute-fixes.md)
 - Tools and what each is for: [references/tools.md](references/tools.md)
-- Fixing a site that lives in a CMS on a server: [references/remote-session.md](references/remote-session.md)
+- Fixing a site that lives in a CMS on a server: [references/session-contract.md](references/session-contract.md) (protocol) and [references/stacks/wordpress.md](references/stacks/wordpress.md) (recipes)
 - Documented facts with source and check date, and the list of heuristics: [references/sources.md](references/sources.md)

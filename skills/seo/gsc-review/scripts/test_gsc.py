@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Offline tests for this skill's scripts: gsc_opportunities.py (brand filter on query rows
-only, locale-safe numbers, single-column exports) and snippets.py (fetch of a non-HTTP URL).
+only, locale-safe numbers, single-column exports) and snippets.py (non-HTTP URL and redirect
+target, title-no-query on content words).
 
 Run: python3 skills/seo/gsc-review/scripts/test_gsc.py
 No network: a fake export directory with Queries.csv and Pages.csv is written to a temp folder.
@@ -101,6 +102,43 @@ class SnippetsFetchTest(unittest.TestCase):
             r = snippets.fetch("file://" + path)
         self.assertIsNone(r["status"])
         self.assertIn("http", r["error"])
+
+
+class SnippetsRedirectTest(unittest.TestCase):
+    """build_opener installs a FileHandler; a redirect must never reach it."""
+
+    class _Resp:
+        status = 301
+        headers = {"Location": "file:///etc/passwd"}
+
+        def read(self, n=None):
+            return b""
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+    def test_redirect_to_a_file_url_is_refused(self):
+        opener = snippets._OPENER
+        snippets._OPENER = type("O", (), {"open": staticmethod(lambda req, timeout=None: self._Resp())})()
+        try:
+            r = snippets.fetch("https://example.com/")
+        finally:
+            snippets._OPENER = opener
+        self.assertIsNone(r["status"])
+        self.assertIn("non-HTTP", r["error"])
+
+
+class TitleQueryTest(unittest.TestCase):
+    """title-no-query compares content words: a natural title drops "how", "to", "the"."""
+
+    def test_stopwords_do_not_trigger_the_flag(self):
+        self.assertEqual(snippets.terms("how to clean a boat hull") - snippets.terms("Clean a boat hull in 20 minutes"), set())
+
+    def test_missing_content_word_is_named(self):
+        self.assertEqual(snippets.terms("boot antifouling") - snippets.terms("Boot reinigen in 20 Minuten"), {"antifouling"})
 
 
 class NumberTest(unittest.TestCase):

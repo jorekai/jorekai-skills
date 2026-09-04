@@ -113,6 +113,78 @@ class Crawl(unittest.TestCase):
         self.assertEqual(self.ids["crawl.orphans"]["level"], "PASS")
 
 
+class RobotsDirectives(unittest.TestCase):
+    """A noindex can sit in three places; every check reads all three."""
+
+    def test_x_robots_tag_header(self):
+        page = audit.parse("<html><head><title>t</title></head><body>x</body></html>", HOST)
+        self.assertIn("noindex", audit.robots_directives(page, {"x-robots-tag": "noindex, nofollow"}))
+
+    def test_googlebot_meta(self):
+        page = audit.parse("<html><head><meta name='googlebot' content='noindex'></head><body>x</body></html>", HOST)
+        self.assertIn("noindex", audit.robots_directives(page, {}))
+
+
+class RobotsCrawl(unittest.TestCase):
+    """The crawl obeys robots.txt: a disallowed URL is reported, never fetched."""
+
+    def setUp(self):
+        self._fetch = audit.fetch
+        self.asked = []
+
+        def counting_fetch(url, ua=None, timeout=15, max_hops=10, delay=0.0):
+            self.asked.append(url)
+            return fake_fetch(url, ua, timeout, max_hops, delay)
+
+        audit.fetch = counting_fetch
+        rp = audit.urllib.robotparser.RobotFileParser()
+        rp.parse(["User-agent: *", "Disallow: /a/"])
+        self.rep = audit.Report()
+        audit.crawl(HOST + "/", 50, self.rep, 5, 0, set(), rp)
+        self.ids = {i["id"]: i for i in self.rep.items}
+
+    def tearDown(self):
+        audit.fetch = self._fetch
+
+    def test_disallowed_url_not_fetched(self):
+        self.assertNotIn(HOST + "/a/", self.asked)
+
+    def test_disallowed_url_reported(self):
+        self.assertEqual(self.ids["crawl.robots-disallowed"]["data"], [HOST + "/a/"])
+
+
+class _FakeResponse:
+    def __init__(self, status, headers):
+        self.status, self.headers = status, headers
+
+    def read(self, n=None):
+        return b""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+
+class RedirectScheme(unittest.TestCase):
+    """build_opener installs a FileHandler; a redirect must never reach it."""
+
+    def setUp(self):
+        self._opener = audit._OPENER
+        audit._OPENER = type("O", (), {"open": staticmethod(
+            lambda req, timeout=None: _FakeResponse(301, {"Location": "file:///etc/passwd"}))})()
+
+    def tearDown(self):
+        audit._OPENER = self._opener
+
+    def test_non_http_target_is_refused(self):
+        r = audit.fetch("https://example.com/")
+        self.assertIsNone(r["status"])
+        self.assertIn("non-HTTP", r["error"])
+        self.assertEqual(r["body"], "")
+
+
 class MetaRefreshTest(unittest.TestCase):
     """A meta refresh must not overwrite the request delay: the browser-UA fetch sleeps on it."""
 
@@ -156,6 +228,16 @@ FULL = ("<html><head><title>Guide</title><link rel='canonical' href='" + HOST + 
         f"<a href='{HOST}/a/'>a</a><a href='{HOST}/b/'>b</a></body></html>")
 
 
+# A single-page app whose menu and footer clear every character threshold on their own: six internal
+# links and more than 300 characters of text, with nothing but a mount point in between.
+CHROME_SHELL = ("<html><head><title>Acme</title><link rel='canonical' href='" + HOST + "/app/'>"
+                "<script src='/bundle.js'></script></head><body><nav>"
+                + "".join(f"<a href='{HOST}/{s}/'>{s}</a>" for s in ("pricing", "blog", "about", "contact"))
+                + f"</nav><div id='root'>Loading...</div><footer><a href='{HOST}/imprint/'>imprint</a>"
+                f"<a href='{HOST}/privacy/'>privacy</a><p>{SHELL_TEXT}</p></footer></body></html>")
+CONSENT_SHELL = CHROME_SHELL.replace("<body>", "<body><script src='https://consent.cookiebot.com/uc.js'></script>")
+
+
 def one_page(body):
     """fetch() replacement that answers every request, both user agents, with the same body."""
     def f(url, ua=None, timeout=15, max_hops=10, delay=0.0):
@@ -183,7 +265,30 @@ class ShellPage(unittest.TestCase):
         page, ids = self.run_on(SHELL)
         self.assertGreaterEqual(page.text_chars, 300)  # the old text-only rule passed this page
         self.assertEqual(ids["render.bot-html"]["level"], "FAIL")
-        self.assertIn("0 internal links", ids["render.bot-html"]["message"])
+        self.assertIn("no internal links", ids["render.bot-html"]["message"])
+
+    def test_shell_with_menu_and_footer_fails(self):
+        """Nav plus footer clear both older rules: over 300 characters and six internal links."""
+        page, ids = self.run_on(CHROME_SHELL)
+        internal = sum(1 for href, _ in page.links if audit.same_site(href, HOST + "/app/"))
+        self.assertGreaterEqual(page.text_chars, 300)
+        self.assertGreater(internal, 0)
+        self.assertEqual(ids["render.bot-html"]["level"], "FAIL")
+        self.assertIn("outside header/nav/footer/aside", ids["render.bot-html"]["message"])
+        self.assertIn('an empty <div id="root">', ids["render.bot-html"]["message"])
+
+    def test_full_page_text_is_not_counted_as_chrome(self):
+        page, _ = self.run_on(FULL)
+        self.assertEqual(page.chrome_chars, 0)
+
+    def test_consent_platform_named_on_a_thin_page(self):
+        _, ids = self.run_on(CONSENT_SHELL)
+        self.assertEqual(ids["render.consent-wall"]["level"], "WARN")
+        self.assertIn("cookiebot", ids["render.consent-wall"]["message"])
+
+    def test_consent_check_stays_quiet_on_a_full_page(self):
+        _, ids = self.run_on(FULL.replace("<body>", "<body><script src='https://consent.cookiebot.com/uc.js'></script>"))
+        self.assertNotIn("render.consent-wall", ids)
 
     def test_external_bundle_counts_as_javascript(self):
         page, _ = self.run_on(SHELL)

@@ -19,6 +19,7 @@ With a workspace, the target list is `docs/seo/<domain>/outreach.csv`, the ancho
    - Ranking pages: WebSearch the target query; the top 10, plus `best [category]`, `[category] tools`, `[competitor] alternatives`.
    - AI-cited pages: the user asks ChatGPT, Claude, Perplexity, and Gemini "best tool for [query]" and "alternatives to [competitor]" and pastes the cited URLs. Those pages are what the models read; a placement there is AI-search visibility. Collect this list and the ranking list separately, because they overlap only in part.
    - Directories and roundups in the niche.
+   Fetching and judging the candidates is subagent work: each subagent returns the `outreach.csv` columns for its share of the targets, under 200 words, and the pages it read stay in its context.
    Done when the list has ≥ 20 rows and every row has a `why` (mention, ranks #n, cited by X, roundup).
 
 3. **Qualify** with [references/link-quality.md](references/link-quality.md): real traffic, topical match, a natural spot for the link. Rows that fail are dropped, with the reason kept in `status`.

@@ -48,4 +48,6 @@ Status, in order: `todo`, then `applied` (date set), then `verify` (verify-after
 
 Buckets: `striking`, `ctr`, `decay`, `cannibal`, `unindexed`, `tech`, `links`, `content`, `distribution`, `diagnose`.
 
+A commit that carries out an action ends with the trailer `SEO-Log: <id>`; `scaffold.py <domain> --log` prints the line to paste. `git log --grep="SEO-Log: 2026-W36-01"` then shows the change behind that row, and `git log --grep="SEO-Log:" --since=<date>` shows every change the loop made in a period. Without the trailer, "was it our own change?" stays a guess.
+
 Every skill that changes the site appends a row to the current week's file. The next `jorekai-seo:gsc-review` fills "Outcomes of earlier actions" for every row whose verify-after date has passed (`scaffold.py <domain> --due` lists them).

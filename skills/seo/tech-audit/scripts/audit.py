@@ -15,6 +15,10 @@ in the background and write --json to a file. Cart, checkout, and account URLs
 are counted but not fetched; tracking parameters are stripped before a URL is
 queued and reported under crawl.tracking-params.
 
+The crawl obeys robots.txt: a disallowed URL is reported, not fetched. The URL
+given on the command line is fetched either way, because a robots block on it is
+itself the finding. Redirects are followed only to http:// and https:// targets.
+
 Exit code 0 always; findings are in the report, not the exit status.
 """
 import argparse
@@ -40,6 +44,13 @@ MAX_BODY = 3_000_000
 TRACKING_PARAMS = re.compile(r"^(utm_\w+|gclid|gbraid|wbraid|fbclid|msclkid|dclid|mc_cid|mc_eid|_ga|_gl|ref|source)$", re.I)
 # Cart, checkout, and account URLs (WooCommerce English and German slugs, Shopify, generic). Never indexable, never worth a fetch.
 CART_RE = re.compile(r"[?&](add-to-cart|remove_item|wc-ajax|undo_item)=|/(cart|checkout|basket|my-account|warenkorb|kasse|mein-konto)(/|$)", re.I)
+# A framework mount point that is still empty in the raw HTML. The closing tag has to sit within
+# 200 characters, so a mount point that already holds the page does not match.
+APP_ROOT_RE = re.compile(r"<(div|main|section)\b[^>]*\bid=[\"']?(root|app|__next|__nuxt|svelte)\b[^>]*>(?:.{0,200}?)</\1>", re.I | re.S)
+# Consent-management platforms. Named only when the page is already thin: a CMP alone says nothing.
+CMP_RE = re.compile(r"cookiebot|usercentrics|onetrust|borlabs|complianz|cookieyes|klaro|didomi|iubenda|cookie-?consent", re.I)
+# Elements that repeat on every page. Their text says nothing about this page.
+CHROME_TAGS = ("header", "nav", "footer", "aside")
 # English and German stopwords; the audit is used on sites in both languages.
 STOPWORDS = set("a an the and or of for to in on with vs versus your my is are how what why "
                 "best top guide de der die das und für mit von im am zu ein eine".split())
@@ -84,7 +95,13 @@ def fetch(url, ua=UA_BOT, timeout=15, max_hops=10, delay=0.0):
         elapsed = time.time() - t0
         chain.append((current, status))
         if 300 <= status < 400 and "location" in headers:
-            current = urllib.parse.urljoin(current, headers["location"])
+            target = urllib.parse.urljoin(current, headers["location"])
+            if not target.lower().startswith(("http://", "https://")):
+                chain.append((target, "scheme"))
+                return {"url": url, "chain": chain, "final_url": current, "status": None,
+                        "headers": {}, "body": "", "elapsed": time.time() - t0,
+                        "error": f"redirect to a non-HTTP target: {target}"}
+            current = target
             continue
         ctype = headers.get("content-type", "")
         body = ""
@@ -117,6 +134,8 @@ class Page(HTMLParser):
         self.images = []  # (src, has_alt)
         self.links = []  # (href, rel)
         self.text_chars = 0
+        self.chrome_chars = 0   # text inside header/nav/footer/aside: the same on every page
+        self._chrome = 0
         self.script_bytes = 0
         self.script_srcs = 0  # <script src>: script_bytes counts inline code only, a bundle weighs nothing there
         self._in_script = False
@@ -144,6 +163,8 @@ class Page(HTMLParser):
                     self.jsonld += 1
                     self._in_jsonld = True
                     self.jsonld_texts.append("")
+        elif tag in CHROME_TAGS:
+            self._chrome += 1
         elif tag == "h1":
             self._in_h1 = True
             self.h1s.append("")
@@ -178,6 +199,8 @@ class Page(HTMLParser):
             if tag == "script":
                 self._in_script = False
                 self._in_jsonld = False
+        elif tag in CHROME_TAGS:
+            self._chrome = max(0, self._chrome - 1)
         elif tag == "h1":
             self._in_h1 = False
 
@@ -194,6 +217,8 @@ class Page(HTMLParser):
         stripped = data.strip()
         if stripped:
             self.text_chars += len(stripped)
+            if self._chrome:
+                self.chrome_chars += len(stripped)
             if self._in_h1 and self.h1s:
                 self.h1s[-1] = (self.h1s[-1] + " " + stripped).strip()
 
@@ -244,6 +269,13 @@ def looks_random(slug):
     return bool(re.search(r"[0-9a-f]{8,}|\d{6,}|(?=[a-z]*\d)(?=\d*[a-z])[a-z0-9]{14,}", slug))
 
 
+def robots_directives(page, headers):
+    """meta robots, meta googlebot and the X-Robots-Tag header as one lowercase string.
+    All three carry the same directives, so a check that reads one of them misses the other two."""
+    return " ".join((page.metas.get("robots", ""), page.metas.get("googlebot", ""),
+                     headers.get("x-robots-tag", ""))).lower()
+
+
 class Report:
     def __init__(self):
         self.items = []  # (section, level, check_id, message)
@@ -283,9 +315,8 @@ def check_page(url, rep, timeout, delay, section="Page", compare_ua=True):
         return bot, None
     if not final.startswith("https://"):
         rep.add(section, "FAIL", "http.https", f"{final} is served without HTTPS")
-    xrobots = bot["headers"].get("x-robots-tag", "")
     p = parse(bot["body"], final)
-    robots_meta = (p.metas.get("robots", "") + " " + p.metas.get("googlebot", "") + " " + xrobots).lower()
+    robots_meta = robots_directives(p, bot["headers"])
     noindex = "noindex" in robots_meta
     if noindex:
         rep.add(section, "FAIL", "head.noindex", f"{final} carries noindex ({robots_meta.strip()}). Intended?")
@@ -298,12 +329,25 @@ def check_page(url, rep, timeout, delay, section="Page", compare_ua=True):
                 "Prefer a server-side 301/308." if instant else
                 f"Delayed meta refresh ({p.meta_refresh!r}): Google treats it as a temporary redirect. Prefer a server-side 301/308.")
 
-    # Rendering: does the bot response carry real content the crawler can use? Text length alone is not
-    # enough: measured 2026-09-04, a shell with a marketing sentence and "Loading..." clears 300 characters.
-    # A page whose raw HTML holds no internal <a href> gives the crawler nothing to follow either way.
+    # Rendering: does the bot response carry real content the crawler can use? Four signals, because each
+    # one alone lets a shell through. Text length: measured 2026-09-04, a shell with a marketing sentence
+    # and "Loading..." clears 300 characters. Text outside header/nav/footer/aside: a menu and a footer
+    # clear it again, and they are identical on every page. Internal links: only <a href> is crawlable.
+    # An empty mount point: the shell of a JavaScript framework, whatever its nav and footer weigh.
     if compare_ua:
         internal = sum(1 for href, _ in p.links if same_site(href, final))
-        if p.text_chars < 300 or internal == 0:
+        own = p.text_chars - p.chrome_chars
+        root = APP_ROOT_RE.search(bot["body"])
+        why = []
+        if p.text_chars < 300:
+            why.append(f"{p.text_chars} chars of visible text")
+        elif own < 300:     # the total already says it; the split only adds something above the threshold
+            why.append(f"{own} chars outside header/nav/footer/aside")
+        if internal == 0:
+            why.append("no internal links")
+        if root:
+            why.append(f'an empty <{root.group(1).lower()} id="{root.group(2)}">')
+        if why:
             browser = fetch(final, UA_BROWSER, timeout, delay=delay)
             pb = parse(browser["body"], final) if browser["body"] else None
             js = p.script_bytes > 20_000 or p.script_srcs or len(re.findall(r"<script", bot["body"], re.I)) > 5
@@ -313,14 +357,20 @@ def check_page(url, rep, timeout, delay, section="Page", compare_ua=True):
                         "server discriminates by user agent")
             elif js:
                 rep.add(section, "FAIL", "render.bot-html",
-                        f"The raw HTML carries {p.text_chars} chars of visible text and {internal} internal links, "
-                        "and the page runs JavaScript: the crawler sees a shell. Serve it as HTML (SSR/SSG).")
+                        "The crawler sees a shell (" + ", ".join(why) + ") and the page runs JavaScript. "
+                        "Serve it as HTML (SSR/SSG).", data=why)
             else:
-                rep.add(section, "WARN", "render.thin",
-                        f"The raw HTML carries {p.text_chars} chars of visible text and {internal} internal links")
+                rep.add(section, "WARN", "render.thin", "Little for the crawler: " + ", ".join(why), data=why)
+            cmp_hit = CMP_RE.search(bot["body"])
+            if cmp_hit:
+                rep.add(section, "WARN", "render.consent-wall",
+                        f"A consent platform ({cmp_hit.group(0)}) runs on this thin page. The banner may cover the "
+                        "content for a reader, the text below it must still stand in the raw HTML. Fetch with "
+                        "curl -sA Googlebot and read what is there before treating the thinness as a rendering bug.")
         else:
             rep.add(section, "PASS", "render.bot-html",
-                    f"{p.text_chars} chars of visible text and {internal} internal links in the raw HTML")
+                    f"{p.text_chars} chars of visible text ({own} outside header/nav/footer/aside) and "
+                    f"{internal} internal links in the raw HTML")
 
     # Head
     if not p.title:
@@ -450,7 +500,7 @@ def check_page(url, rep, timeout, delay, section="Page", compare_ua=True):
 
 # --------------------------------------------------------------------------- site checks
 
-def check_site(start_final, rep, timeout, delay, page=None):
+def check_site(start_final, rep, timeout, delay, page=None, page_headers=None):
     u = urllib.parse.urlsplit(start_final)
     origin = f"{u.scheme}://{u.netloc}"
     host = u.netloc
@@ -551,8 +601,10 @@ def check_site(start_final, rep, timeout, delay, page=None):
             rep.add("Site", "FAIL", "site.http-redirect", "http:// serves content instead of redirecting to https://")
         elif plain["status"] == 200:
             rep.add("Site", "PASS", "site.http-redirect", "http:// redirects to https://")
-    hsts = rtxt["headers"].get("strict-transport-security")
-    if not hsts:
+    # Read the header from the page's own response first: an unreachable robots.txt would otherwise
+    # report a missing header that the site does send.
+    if u.scheme == "https" and not ((page_headers or {}).get("strict-transport-security")
+                                    or rtxt["headers"].get("strict-transport-security")):
         rep.add("Site", "INFO", "site.hsts", "No Strict-Transport-Security header")
 
     # soft 404
@@ -573,11 +625,11 @@ def check_site(start_final, rep, timeout, delay, page=None):
             pv = parse(v["body"], variant)
             if not pv.canonicals:
                 rep.add("Site", "WARN", "site.trailing-slash", "Both slash and no-slash variants return 200 without a canonical: duplicate URLs")
-    return urls_in_sitemap
+    return urls_in_sitemap, rp
 
 # --------------------------------------------------------------------------- crawl
 
-def crawl(start_final, limit, rep, timeout, delay, urls_in_sitemap):
+def crawl(start_final, limit, rep, timeout, delay, urls_in_sitemap, rp=None):
     seen = {norm(start_final): start_final}
     q = deque([start_final])
     pages = {}  # final_url -> dict(title, desc, canonical, status)
@@ -588,8 +640,12 @@ def crawl(start_final, limit, rep, timeout, delay, urls_in_sitemap):
     broken = {}
     tracking_links = []  # (source page, href with tracking parameters)
     cart_links = Counter()  # cart/checkout targets, not fetched
+    disallowed = {}  # norm(url) -> url, robots.txt says no; reported, never fetched
     while q and len(pages) < limit:
         url = q.popleft()
+        if rp is not None and not rp.can_fetch("Googlebot", url):
+            disallowed[norm(url)] = url
+            continue
         r = fetch(url, UA_BOT, timeout, delay=delay)
         if r["status"] is None:
             broken[url] = r["error"]
@@ -610,7 +666,7 @@ def crawl(start_final, limit, rep, timeout, delay, urls_in_sitemap):
         p = parse(r["body"], final)
         pages[final] = {"title": p.title, "desc": p.metas.get("description"),
                         "canonical": p.canonicals[0] if p.canonicals else None,
-                        "h1": len(p.h1s), "noindex": "noindex" in p.metas.get("robots", "").lower()}
+                        "h1": len(p.h1s), "noindex": "noindex" in robots_directives(p, r["headers"])}
         for href, rel in p.links:
             if not same_site(href, start_final):
                 continue
@@ -632,6 +688,11 @@ def crawl(start_final, limit, rep, timeout, delay, urls_in_sitemap):
     truncated = bool(q)
     rep.add("Crawl", "INFO", "crawl.size",
             f"Crawled {len(pages)} pages" + (f" (limit hit, {len(q)} URLs left in queue, orphan check skipped)" if truncated else " (site exhausted)"))
+    if disallowed:
+        rep.add("Crawl", "INFO", "crawl.robots-disallowed",
+                f"{len(disallowed)} linked URLs are disallowed in robots.txt and were not fetched, "
+                f"e.g. {sorted(disallowed.values())[:3]}. Googlebot stops at the same line.",
+                data=sorted(disallowed.values()))
     for url, status in list(broken.items())[:30]:
         rep.add("Crawl", "FAIL", "crawl.broken-link", f"Internal link target {url} -> {status} (linked from {link_sources.get(norm(url), '?')})")
     if len(broken) > 30:
@@ -764,17 +825,17 @@ def main():
     ap.add_argument("--delay", type=float, default=0.25, help="seconds between requests")
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args()
-    url = a.url if a.url.startswith("http") else "https://" + a.url
+    url = a.url if a.url.lower().startswith(("http://", "https://")) else "https://" + a.url
     rep = Report()
     bot, page = check_page(url, rep, a.timeout, a.delay)
     final = bot["final_url"] if bot["status"] == 200 else url
-    sitemap = set()
+    sitemap, robots = set(), None
     if a.rendered and page:
         check_rendered(a.rendered, page, final, rep)
     if bot["status"]:
-        sitemap = check_site(final, rep, a.timeout, a.delay, page)
+        sitemap, robots = check_site(final, rep, a.timeout, a.delay, page, bot["headers"])
         if a.crawl:
-            crawl(final, a.crawl, rep, a.timeout, a.delay, sitemap)
+            crawl(final, a.crawl, rep, a.timeout, a.delay, sitemap, robots)
     if a.json:
         print(json.dumps({"url": url, "final_url": final, "counts": rep.counts(), "items": rep.items}, indent=2, ensure_ascii=False))
     else:

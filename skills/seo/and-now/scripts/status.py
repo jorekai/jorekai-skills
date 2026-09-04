@@ -119,6 +119,7 @@ def read_domain(base, today):
     future = [dt.date.fromisoformat(r["verify after"]) for r in rows if r.get("status") in ("applied", "verify")
               and ISO_DATE.match(r.get("verify after", "")) and dt.date.fromisoformat(r["verify after"]) > today]
     s["next_verify"] = min(future) if future else None
+    s["log_sources"] = sources          # in file order, so the last one is the newest week's
     s["log_source"] = " ".join(sources)
 
     exports = [p for p in (base / "exports").iterdir() if p.is_file() and p.suffix in (".zip", ".csv")] \
@@ -167,9 +168,14 @@ def decide(s, today):
                    "(`won` / `no-change`) from a fresh export: " + ", ".join(r.get("id", "?") for r in s["due"]))
     exp = s["export"]
     if exp is None:
-        now.append("export Search Console (Performance > Export, 28 days, plus the previous 28 days) into exports/, "
-                   "then `jorekai-seo:gsc-review`")
-        if stage == "loop" and not s["due"] and not s["todo"] and not s["briefs"] and not s["drafts"]:
+        step = ("export Search Console (Performance > Export, 28 days, plus the previous 28 days) into exports/, "
+                "then `jorekai-seo:gsc-review`")
+        # exports/ is git-ignored, so a second checkout has the log rows but not the file they name.
+        if s["log_sources"]:
+            step += (f" (the newest log names {s['log_sources'][-1]}, and exports/ holds no file here: "
+                     "the folder is git-ignored, so export again instead of hunting for it)")
+        now.append(step)
+        if stage == "loop" and not s["rows"] and not s["briefs"] and not s["drafts"]:
             stage = "loop, not started"
     else:
         age = (today - file_date(exp)).days
@@ -237,6 +243,9 @@ def main():
     ap.add_argument("--today", default=None, help="YYYY-MM-DD, for tests")
     a = ap.parse_args()
     root = Path(a.root)
+    for d in a.domains:      # a folder name, never a path: keep the report inside --root
+        if "/" in d or d.startswith("."):
+            sys.exit(f"not a domain folder name: {d!r}")
     today = dt.date.fromisoformat(a.today) if a.today else dt.date.today()
     if not root.is_dir():
         print(f"no workspace at {root}: run `jorekai-seo:setup` first")

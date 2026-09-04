@@ -138,6 +138,16 @@ class Stages(unittest.TestCase):
         self.assertIn("again", now[0])
         self.assertIn("33 days old", now[0])
 
+    def test_log_without_the_export_file_says_where_it_went(self):
+        """exports/ is git-ignored: a second checkout has the log rows and no export."""
+        self.fill_setup()
+        self.audit("2026-09-02-tech.json")
+        self.log([row(1, "ctr", "/p/", "won", "2026-08-01", "2026-09-30")],
+                 source="exports/2026-09-01-gsc.zip (2026-08-04 to 2026-09-01, 28 days)")
+        stage, now, _ = self.stage()
+        self.assertEqual(stage, "loop")
+        self.assertTrue(any("git-ignored" in n and "2026-09-01-gsc.zip" in n for n in now), now)
+
     def test_content_chain(self):
         self.fill_setup()
         self.audit("2026-09-02-tech.json")

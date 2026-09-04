@@ -9,7 +9,8 @@ tech-audit/scripts/audit.py; the fetch is copied so this skill stays standalone)
 prints title, meta description, H1, og:title, dateModified as a table, then the flags:
 
   meta-is-title       meta description equals the title
-  title-no-query      --query given and a word of it is missing from the title
+  title-no-query      --query given and a content word of it is missing from the title; the flag
+                      names the missing words, stopwords are ignored
   h1-missing          no <h1>
   h1-linebreak        the H1 text contains a line break or <br>
   h1-multiple         more than one <h1>
@@ -32,6 +33,10 @@ from html.parser import HTMLParser
 
 UA_BOT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 MAX_BODY = 3_000_000
+# English and German stopwords. A natural title does not repeat "how to ... for the", so a raw
+# word-for-word comparison would flag almost every title. Same list as tech-audit/scripts/audit.py.
+STOPWORDS = set("a an the and or of for to in on with vs versus your my is are how what why "
+                "best top guide de der die das und für mit von im am zu ein eine".split())
 META_MAX = 160          # heuristic, see seo/references/sources.md
 NUMBER_RE = re.compile(r"(?:ab\s+)?\d[\d.,]*\s?(?:€|EUR|%|\$)", re.I)
 
@@ -68,7 +73,13 @@ def fetch(url, ua=UA_BOT, timeout=15, max_hops=10):
                     "error": "no HTTP status; give an http:// or https:// URL"}
         chain.append((current, status))
         if 300 <= status < 400 and "location" in headers:
-            current = urllib.parse.urljoin(current, headers["location"])
+            # build_opener installs a FileHandler and an FTPHandler; a redirect never reaches them.
+            target = urllib.parse.urljoin(current, headers["location"])
+            if not target.lower().startswith(("http://", "https://")):
+                chain.append((target, "scheme"))
+                return {"url": url, "final_url": current, "status": None, "headers": {}, "body": "",
+                        "chain": chain, "error": f"redirect to a non-HTTP target: {target}"}
+            current = target
             continue
         ctype = headers.get("content-type", "")
         m = re.search(r"charset=([\w-]+)", ctype)
@@ -145,8 +156,9 @@ def clean(s):
     return re.sub(r"\s+", " ", s or "").strip()
 
 
-def words(s):
-    return {w for w in re.split(r"[^a-z0-9äöüß]+", (s or "").lower()) if w}
+def terms(s):
+    """Content words of a string, lowercase, stopwords and one- and two-letter words dropped."""
+    return {w for w in re.split(r"[^a-z0-9äöüß]+", (s or "").lower()) if len(w) > 2 and w not in STOPWORDS}
 
 
 def inspect(url, query=None):
@@ -167,8 +179,9 @@ def inspect(url, query=None):
     flags = []
     if out["meta"] and out["meta"] == out["title"]:
         flags.append("meta-is-title")
-    if query and not words(query) <= words(out["title"]):
-        flags.append("title-no-query")
+    missing_query = sorted(terms(query) - terms(out["title"])) if query else []
+    if missing_query:
+        flags.append("title-no-query:" + ";".join(missing_query))
     if not h1:
         flags.append("h1-missing")
     elif "\n" in h1:

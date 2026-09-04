@@ -34,7 +34,7 @@ Ordered by how cheaply they are ruled out. For each: the shape that fits, the pr
 
 - Shape: one page or a cluster, starting right after a deploy, redesign, migration, or a new page on the same topic.
 - Prediction: `git log` around the drop date touched the page, its internal links, its URL, or added a page competing for the same query; Search Console shows a second URL rising for the query while the first falls.
-- Check: git history of the page and of navigation and templates; the cannibalization bucket in `jorekai-seo:gsc-review` (needs page×query data); internal link count to the page before and after (the audit's crawl mode).
+- Check: `git log --grep="SEO-Log:" --since=<drop date>` lists the changes the loop itself made, each with its log row id; then the git history of the page and of navigation and templates; the cannibalization bucket in `jorekai-seo:gsc-review` (needs page×query data); internal link count to the page before and after (the audit's crawl mode).
 - Fix: restore what was removed (sections, internal links, the old URL via 301), or merge and 301 the competing page; then Request indexing.
 
 ## 6. Competition or content decay

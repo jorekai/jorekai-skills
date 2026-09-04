@@ -35,6 +35,19 @@ pv=$(python3 -c 'import json;print(json.load(open(".claude-plugin/plugin.json"))
 cv=$(grep -m1 -oE '^## [0-9]+\.[0-9]+\.[0-9]+' CHANGELOG.md | cut -c4-)
 [[ "$pv" == "$cv" ]] || hit "version: plugin.json says $pv, CHANGELOG.md top entry says $cv"
 
+# The router must not lie: every skill directory is named in its theme's router and in README.md,
+# and every jorekai-<theme>:<name> written anywhere resolves to a directory. CHANGELOG.md and
+# decisions/ are history and may name a skill that is gone.
+for d in $(git ls-files 'skills/*/*/SKILL.md' | xargs -n1 dirname); do
+  theme=$(basename "$(dirname "$d")"); name=$(basename "$d")
+  [[ "$name" == "$theme" ]] && continue      # the theme's router names the others, not itself
+  grep -q "jorekai-$theme:$name\`" "skills/$theme/$theme/SKILL.md" || hit "router: jorekai-$theme:$name missing in skills/$theme/$theme/SKILL.md"
+  grep -q "jorekai-$theme:$name\`" README.md || hit "readme: jorekai-$theme:$name missing in README.md"
+done
+while IFS= read -r ref; do
+  [[ -d "skills/${ref%%:*}/${ref#*:}" ]] || hit "stale reference: jorekai-$ref names no skill directory"
+done < <(git ls-files '*.md' | grep -vE '^(CHANGELOG\.md|decisions/)' | xargs grep -ohE 'jorekai-[a-z]+:[a-z-]+' | sed 's/^jorekai-//' | sort -u)
+
 # Sources older than 180 days are a warning, not a hit: refresh them when touching the skill.
 python3 scripts/sources_age.py --days 180 | sed 's/^/warning: stale source: /' | grep -v ': 0 row' >&2
 
