@@ -4,6 +4,9 @@ One entry per plugin version. The version at the top equals `version` in `.claud
 
 ## 1.9.0 (2026-09-04)
 
+- Added: `decisions/0009` records why a verdict is measured against the median of all pages and why a row under the impression threshold gets no verdict.
+- Added: `AGENTS.md` and `README.md` name the quarterly job of settling every source row older than 180 days.
+
 - Added: `jorekai-seo:migrate`, model-invoked, for a domain, host, or URL move: inventory of what earns clicks, a redirect map, the owner's console steps, then verification until zero FAIL. The riskiest event in search had no coverage at all.
 - Added: `audit.py --redirects FILE` fetches every row of a redirect map once and reports `redirects.missing`, `redirects.temporary`, `redirects.chain`, `redirects.broken`, `redirects.wrong-target`, and `redirects.error`, with a fix per id in `fixes.md`.
 - Changed: the site-move source row carries the address-change scope, the "all URLs at once" guidance, and how long new URLs take to show, all checked 2026-09-04.
