@@ -52,7 +52,12 @@ def to_float(s):
 
 def read_rows(text):
     text = text.lstrip("﻿")
-    dialect = csv.Sniffer().sniff(text[:2000], delimiters=",;\t") if text else csv.excel
+    dialect = csv.excel
+    if text:
+        try:
+            dialect = csv.Sniffer().sniff(text[:2000], delimiters=",;\t")
+        except csv.Error:
+            pass    # one column and no delimiter in sight: the not-indexed URL export
     rows = list(csv.reader(io.StringIO(text), dialect))
     return [r for r in rows if r and any(c.strip() for c in r)]
 

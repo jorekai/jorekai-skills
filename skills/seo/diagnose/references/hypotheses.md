@@ -13,7 +13,7 @@ Ordered by how cheaply they are ruled out. For each: the shape that fits, the pr
 
 - Shape: impressions flat, position flat or better, clicks and CTR down. Single query or page.
 - Prediction: the live SERP for the query shows an AI Overview, featured snippet, video carousel, or a competitor's rich result that was not there before; in Search Console, a link inside an AI Overview shares one position with every other link in it.
-- Check: search the query in the target market; compare the CTR-gap bucket in the last `jorekai-seo:gsc-review`; the Generative AI performance report for AI Overview impressions.
+- Check: search the query in the target market; compare against the dated lines under "SERP observations" in the page's brief; compare the CTR-gap bucket in the last `jorekai-seo:gsc-review`; the Generative AI performance report for AI Overview impressions. A block that stands there today confirms nothing about the week the clicks fell: without an earlier dated observation this hypothesis stays open, and saying so is the finding.
 - Fix: title and meta for a reason to click, a direct answer in the first paragraph to be the cited source; accept the ceiling. `jorekai-seo:gsc-review` actions.md, CTR gap.
 
 ## 3. Google update

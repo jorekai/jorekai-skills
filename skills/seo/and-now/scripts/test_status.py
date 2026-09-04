@@ -163,6 +163,17 @@ class Stages(unittest.TestCase):
         _, now, _ = self.stage()
         self.assertIn("nothing open", now[0])
 
+    def test_log_table_without_an_id_column(self):
+        """A hand-edited log may drop or rename the id column; the report still has to come out."""
+        self.fill_setup()
+        self.audit("2026-09-01-tech.json")
+        head = ("# 2026-W36 (2026-08-31 to 2026-09-06)\n\nSource:\n\n## Actions\n\n"
+                "| Bucket | URL | Query | Action | Status | Applied | Verify after | Outcome |\n"
+                "|---|---|---|---|---|---|---|---|\n")
+        (self.base / "log" / "2026-W36.md").write_text(head + "| tech | /a/ | q | do x | todo | | | |\n", encoding="utf-8")
+        _, now, _ = self.stage()
+        self.assertTrue(any("apply the open `tech` rows" in step for step in now), now)
+
     def test_cli_exit_codes(self):
         env = dict(os.environ)
         r = subprocess.run([sys.executable, str(HERE / "status.py"), "--root", str(self.root / "nope")],

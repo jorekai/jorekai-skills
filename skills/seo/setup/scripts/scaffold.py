@@ -20,12 +20,16 @@ FILES = {"config.md": "config.md", "connections.md": "connections.md",
          "strategy.md": "strategy.md", "glossary.md": "glossary.md"}
 DIRS = ["log", "briefs", "drafts", "exports", "audits"]
 ID_RE = re.compile(r"\b(\d{4}-W\d{2})-(\d{2})\b")
+LABEL = r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?"
+HOST_RE = re.compile(rf"{LABEL}(?:\.{LABEL})+")
 
 
 def host(domain):
     d = domain.strip().lower()
     d = re.sub(r"^https?://", "", d).split("/")[0]
-    if not d or " " in d:
+    # Two labels or more, letters, digits and hyphens only. Every folder below is named after
+    # this value, so "..", "." and a name with a separator in it never become a path segment.
+    if not HOST_RE.fullmatch(d):
         sys.exit(f"not a host name: {domain!r}")
     return d
 

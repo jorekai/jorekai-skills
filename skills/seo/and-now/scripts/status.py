@@ -161,10 +161,10 @@ def decide(s, today):
     other_todo = [r for r in s["todo"] if r.get("bucket") != "tech"]
     if tech_todo:
         now.append("apply the open `tech` rows, then set Status `applied`, the date, and `verify after` "
-                   f"(+{TECH_VERIFY_DAYS} days): " + ", ".join(r["id"] for r in tech_todo))
+                   f"(+{TECH_VERIFY_DAYS} days): " + ", ".join(r.get("id", "?") for r in tech_todo))
     if s["due"]:
         now.append(f"`jorekai-seo:gsc-review`: {len(s['due'])} row(s) past their verify date need a verdict "
-                   "(`won` / `no-change`) from a fresh export: " + ", ".join(r["id"] for r in s["due"]))
+                   "(`won` / `no-change`) from a fresh export: " + ", ".join(r.get("id", "?") for r in s["due"]))
     exp = s["export"]
     if exp is None:
         now.append("export Search Console (Performance > Export, 28 days, plus the previous 28 days) into exports/, "
@@ -180,7 +180,7 @@ def decide(s, today):
     for r in other_todo:
         skill = {"content": "jorekai-seo:content", "links": "jorekai-seo:links", "distribution": "jorekai-seo:distribution",
                  "diagnose": "jorekai-seo:diagnose"}.get(r.get("bucket"), "apply per jorekai-seo:gsc-review actions.md")
-        now.append(f"{skill}: {r['id']} ({r.get('bucket')}, {r.get('url')}), then set Status `applied` and `verify after`")
+        now.append(f"{skill}: {r.get('id', '?')} ({r.get('bucket')}, {r.get('url')}), then set Status `applied` and `verify after`")
     for slug in s["briefs"]:
         if slug not in s["drafts"]:
             now.append(f"`jorekai-seo:content`: briefs/{slug}.md has no draft yet")
@@ -195,7 +195,7 @@ def decide(s, today):
         url = r.get("url", "")
         for bucket, skill in (("links", "jorekai-seo:links"), ("distribution", "jorekai-seo:distribution")):
             if not any(x.get("bucket") == bucket and x.get("url") == url for x in s["rows"]):
-                now.append(f"`{skill}` for {url} (shipped as {r['id']}, no `{bucket}` row yet)")
+                now.append(f"`{skill}` for {url} (shipped as {r.get('id', '?')}, no `{bucket}` row yet)")
     if not now:
         now.append("nothing open this week; next export and `jorekai-seo:gsc-review` next week")
     if s["next_verify"]:

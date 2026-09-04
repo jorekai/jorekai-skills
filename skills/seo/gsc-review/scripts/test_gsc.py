@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Offline tests for gsc_opportunities.py: brand filter on query rows only, locale-safe numbers.
+"""Offline tests for this skill's scripts: gsc_opportunities.py (brand filter on query rows
+only, locale-safe numbers, single-column exports) and snippets.py (fetch of a non-HTTP URL).
 
 Run: python3 skills/seo/gsc-review/scripts/test_gsc.py
 No network: a fake export directory with Queries.csv and Pages.csv is written to a temp folder.
@@ -12,6 +13,7 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import gsc_opportunities as g  # noqa: E402
+import snippets  # noqa: E402
 
 HOST = "https://example-bootsschule.de"
 
@@ -75,6 +77,30 @@ class ExportTest(unittest.TestCase):
         gap = [r["key"] for r in g.ctr_gap(self.queries, Args())]
         self.assertIn("bootsführerschein kosten", gap)
         self.assertNotIn("acme", gap)
+
+
+class SingleColumnTest(unittest.TestCase):
+    """The not-indexed export is one column of URLs: no delimiter for the sniffer to find."""
+
+    def test_url_list_without_a_delimiter(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "not-indexed.csv")
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(f"URL\n{HOST}/a/\n{HOST}/b/\n")
+            self.assertEqual(g.load_url_list(path), [f"{HOST}/a/", f"{HOST}/b/"])
+
+
+class SnippetsFetchTest(unittest.TestCase):
+    """A URL that is not http:// or https:// answers without a status code, and that is a fetch error."""
+
+    def test_non_http_url_reports_an_error(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "page.html")
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("<html><head><title>local</title></head><body></body></html>")
+            r = snippets.fetch("file://" + path)
+        self.assertIsNone(r["status"])
+        self.assertIn("http", r["error"])
 
 
 class NumberTest(unittest.TestCase):

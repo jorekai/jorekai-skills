@@ -28,7 +28,8 @@ With a workspace, `docs/seo/<domain>/config.md` names the files to fix (`head_te
 
 ## Reading the report
 
-- `render.bot-html` FAIL is the most expensive finding: the index sees an empty page. Server-render or pre-render; confirm with `curl -sA Googlebot URL | grep '<h1'`.
+- `render.bot-html` FAIL is the most expensive finding: the index sees a shell. It fires on thin text and on a page whose raw HTML holds no internal `<a href>`, because only `<a href>` is crawlable and a page nobody can link out of is a dead end. Text length alone was not enough: a shell with one marketing sentence and a loading message clears any character threshold. Server-render or pre-render; confirm with `curl -sA Googlebot URL | grep '<h1'`.
+- `render.js-only` needs a rendered DOM to compare against, and only for the audited URL itself. Save one when a browser tool or Search Console's live test is at hand, then pass `--rendered FILE`; install or start nothing to obtain it. The rendered DOM is the fast check, Search Console's live test is the verdict, and a raw-only audit stays a complete result.
 - `head.canonical` pointing elsewhere is correct for paginated, filtered, or syndicated pages and wrong for anything meant to rank. Ask before changing it.
 - `head.noindex` is a FAIL on a page meant to rank and correct on thank-you, admin, and internal search pages.
 - Crawl findings cover the crawled set only. "Orphan check skipped" means raise `--crawl` until the queue drains, or accept the gap.

@@ -62,6 +62,10 @@ def fetch(url, ua=UA_BOT, timeout=15, max_hops=10):
         except Exception as e:
             chain.append((current, None))
             return {"url": url, "final_url": current, "status": None, "headers": {}, "body": "", "chain": chain, "error": str(e)}
+        if status is None:      # a response with no status code: the URL was not http:// or https://
+            chain.append((current, None))
+            return {"url": url, "final_url": current, "status": None, "headers": {}, "body": "", "chain": chain,
+                    "error": "no HTTP status; give an http:// or https:// URL"}
         chain.append((current, status))
         if 300 <= status < 400 and "location" in headers:
             current = urllib.parse.urljoin(current, headers["location"])

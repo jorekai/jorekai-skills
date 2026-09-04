@@ -5,7 +5,10 @@ Stdlib only. Fetches with a Googlebot user agent (what the index sees) and
 compares against a browser user agent to detect JS-only content.
 
 Usage:
-  audit.py URL [--crawl N] [--timeout S] [--delay S] [--json]
+  audit.py URL [--crawl N] [--rendered FILE] [--timeout S] [--delay S] [--json]
+
+--rendered takes a saved rendered DOM for URL itself, from a browser tool or from
+Search Console's live test, and names what exists only after JavaScript.
 
 A crawl costs about one second per page (fetch plus --delay); run large crawls
 in the background and write --json to a file. Cart, checkout, and account URLs
@@ -16,6 +19,7 @@ Exit code 0 always; findings are in the report, not the exit status.
 """
 import argparse
 import json
+import pathlib
 import random
 import re
 import string
@@ -114,6 +118,7 @@ class Page(HTMLParser):
         self.links = []  # (href, rel)
         self.text_chars = 0
         self.script_bytes = 0
+        self.script_srcs = 0  # <script src>: script_bytes counts inline code only, a bundle weighs nothing there
         self._in_script = False
         self.jsonld = 0
         self.lang = None
@@ -133,6 +138,8 @@ class Page(HTMLParser):
             self._skip += 1
             if tag == "script":
                 self._in_script = True
+                if a.get("src"):
+                    self.script_srcs += 1
                 if (a.get("type") or "").lower() == "application/ld+json":
                     self.jsonld += 1
                     self._in_jsonld = True
@@ -283,30 +290,37 @@ def check_page(url, rep, timeout, delay, section="Page", compare_ua=True):
     if noindex:
         rep.add(section, "FAIL", "head.noindex", f"{final} carries noindex ({robots_meta.strip()}). Intended?")
     if p.meta_refresh is not None:
-        delay = re.match(r"\s*(\d+)", p.meta_refresh or "")
-        instant = delay and int(delay.group(1)) == 0
+        # Own name: `delay` is the seconds between requests and is still needed below.
+        refresh_seconds = re.match(r"\s*(\d+)", p.meta_refresh or "")
+        instant = refresh_seconds and int(refresh_seconds.group(1)) == 0
         rep.add(section, "WARN", "head.meta-refresh",
                 f"Meta refresh present ({p.meta_refresh!r}): Google reads an instant one as a permanent redirect and a delayed one as temporary. "
                 "Prefer a server-side 301/308." if instant else
                 f"Delayed meta refresh ({p.meta_refresh!r}): Google treats it as a temporary redirect. Prefer a server-side 301/308.")
 
-    # Rendering: does the bot response carry real content?
+    # Rendering: does the bot response carry real content the crawler can use? Text length alone is not
+    # enough: measured 2026-09-04, a shell with a marketing sentence and "Loading..." clears 300 characters.
+    # A page whose raw HTML holds no internal <a href> gives the crawler nothing to follow either way.
     if compare_ua:
-        if p.text_chars < 300:
+        internal = sum(1 for href, _ in p.links if same_site(href, final))
+        if p.text_chars < 300 or internal == 0:
             browser = fetch(final, UA_BROWSER, timeout, delay=delay)
             pb = parse(browser["body"], final) if browser["body"] else None
+            js = p.script_bytes > 20_000 or p.script_srcs or len(re.findall(r"<script", bot["body"], re.I)) > 5
             if pb and pb.text_chars > p.text_chars * 2 + 200:
                 rep.add(section, "FAIL", "render.bot-html",
                         f"Googlebot UA gets {p.text_chars} chars of text, browser UA gets {pb.text_chars}: "
                         "server discriminates by user agent")
-            elif p.script_bytes > 20_000 or len(re.findall(r"<script", bot["body"], re.I)) > 5:
+            elif js:
                 rep.add(section, "FAIL", "render.bot-html",
-                        f"Only {p.text_chars} chars of visible text in the HTML but heavy JS: "
-                        "content is probably client-rendered. Serve it as HTML (SSR/SSG).")
+                        f"The raw HTML carries {p.text_chars} chars of visible text and {internal} internal links, "
+                        "and the page runs JavaScript: the crawler sees a shell. Serve it as HTML (SSR/SSG).")
             else:
-                rep.add(section, "WARN", "render.thin", f"Only {p.text_chars} chars of visible text in the HTML")
+                rep.add(section, "WARN", "render.thin",
+                        f"The raw HTML carries {p.text_chars} chars of visible text and {internal} internal links")
         else:
-            rep.add(section, "PASS", "render.bot-html", f"{p.text_chars} chars of visible text in raw HTML")
+            rep.add(section, "PASS", "render.bot-html",
+                    f"{p.text_chars} chars of visible text and {internal} internal links in the raw HTML")
 
     # Head
     if not p.title:
@@ -685,6 +699,46 @@ def crawl(start_final, limit, rep, timeout, delay, urls_in_sitemap):
 LEVEL_ORDER = {"FAIL": 0, "WARN": 1, "INFO": 2, "PASS": 3}
 
 
+def check_rendered(path, raw, final, rep, section="Page"):
+    """Compare a saved rendered DOM against the raw fetch of the same URL.
+
+    Fields, not text: hydration markers and attribute order make a literal diff noise.
+    """
+    try:
+        body = pathlib.Path(path).read_text(encoding="utf-8", errors="replace")
+    except OSError as e:
+        rep.add(section, "FAIL", "render.js-only", f"cannot read {path}: {e}")
+        return
+    r = parse(body, final)
+    raw_internal = sum(1 for href, _ in raw.links if same_site(href, final))
+    ren_internal = sum(1 for href, _ in r.links if same_site(href, final))
+    only = []
+    if not raw.title and r.title:
+        only.append("title")
+    if not raw.h1s and r.h1s:
+        only.append("h1")
+    if not raw.canonicals and r.canonicals:
+        only.append("canonical")
+    if r.text_chars > raw.text_chars * 2 + 200:
+        only.append(f"body text ({raw.text_chars} raw, {r.text_chars} rendered)")
+    if ren_internal > raw_internal * 2 + 5:
+        only.append(f"internal links ({raw_internal} raw, {ren_internal} rendered)")
+    if r.jsonld > raw.jsonld:
+        only.append(f"structured data ({raw.jsonld} raw, {r.jsonld} rendered)")
+    if only:
+        rep.add(section, "FAIL", "render.js-only",
+                "Exists only after JavaScript: " + ", ".join(only) + ". Google renders in a second pass; "
+                "server-render or pre-render these.", data=only)
+    else:
+        rep.add(section, "PASS", "render.js-only", "The rendered DOM adds nothing the raw HTML lacks")
+    gone = [name for name, a, b in (("title", raw.title, r.title), ("h1", raw.h1s, r.h1s),
+                                    ("canonical", raw.canonicals, r.canonicals)) if a and not b]
+    if gone:
+        rep.add(section, "INFO", "render.raw-only",
+                "In the raw HTML but not in the rendered DOM: " + ", ".join(gone) + ". JavaScript removes it.",
+                data=gone)
+
+
 def render(rep, url):
     c = rep.counts()
     out = [f"# Tech SEO audit: {url}", "",
@@ -705,6 +759,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("url")
     ap.add_argument("--crawl", type=int, default=0, metavar="N", help="crawl up to N internal pages for duplicates, broken links, orphans")
+    ap.add_argument("--rendered", metavar="FILE", help="saved rendered DOM of URL itself; names what exists only after JavaScript")
     ap.add_argument("--timeout", type=float, default=15)
     ap.add_argument("--delay", type=float, default=0.25, help="seconds between requests")
     ap.add_argument("--json", action="store_true")
@@ -714,6 +769,8 @@ def main():
     bot, page = check_page(url, rep, a.timeout, a.delay)
     final = bot["final_url"] if bot["status"] == 200 else url
     sitemap = set()
+    if a.rendered and page:
+        check_rendered(a.rendered, page, final, rep)
     if bot["status"]:
         sitemap = check_site(final, rep, a.timeout, a.delay, page)
         if a.crawl:

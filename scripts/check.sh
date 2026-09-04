@@ -53,6 +53,7 @@ t() { "$@" >/dev/null 2>&1 && echo "pass: $*" || { echo "FAIL: $*"; fail=1; }; }
 t python3 skills/seo/tech-audit/scripts/test_audit.py
 t python3 skills/seo/gsc-review/scripts/test_gsc.py
 t python3 skills/seo/and-now/scripts/test_status.py
+t python3 skills/seo/setup/scripts/test_scaffold.py
 t python3 skills/seo/gsc-review/scripts/gsc_opportunities.py --help
 t python3 skills/seo/gsc-review/scripts/snippets.py --help
 t python3 skills/seo/setup/scripts/scaffold.py --root "$(mktemp -d)/docs/seo" example.com
@@ -61,6 +62,8 @@ t python3 skills/seo/and-now/scripts/status.py --help
 t bash -n skills/seo/connect/templates/wizard.sh
 t bash -n skills/seo/connect/scripts/indexnow.sh
 t bash -n scripts/link.sh
+# A filter that matches nothing must reach the message, not die on an empty array under `set -u`.
+t bash -c 'bash scripts/link.sh "$(mktemp -d)" nosuchskill 2>&1 | grep -qx "nothing matched"'
 t python3 scripts/sources_age.py --help
 for f in $(git ls-files 'skills/*/*/agents/openai.yaml'); do t test -s "$f"; done
 for d in $(git ls-files 'skills/*/*/SKILL.md' | xargs -n1 dirname); do t test -f "$d/agents/openai.yaml"; done

@@ -22,7 +22,9 @@ if (( $# )); then
       if [[ "$bucket" == "$want" || "$name" == $want ]]; then sel+=("$s"); fi
     done
   done
-  srcs=("${sel[@]}")
+  # bash 3.2 (the macOS default) treats an empty array as unset under `set -u`;
+  # the +expansion keeps the empty case alive so the message below is reached.
+  srcs=(${sel[@]+"${sel[@]}"})
 fi
 (( ${#srcs[@]} )) || { echo "nothing matched" >&2; exit 1; }
 

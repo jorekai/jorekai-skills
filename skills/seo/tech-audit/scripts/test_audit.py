@@ -6,6 +6,7 @@ No network: fetch() is replaced by a fake site.
 """
 import os
 import sys
+import tempfile
 import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -110,6 +111,121 @@ class Crawl(unittest.TestCase):
 
     def test_orphans_pass_when_queue_drained(self):
         self.assertEqual(self.ids["crawl.orphans"]["level"], "PASS")
+
+
+class MetaRefreshTest(unittest.TestCase):
+    """A meta refresh must not overwrite the request delay: the browser-UA fetch sleeps on it."""
+
+    # Thin page with a meta refresh: under 300 characters of text, so check_page compares user agents.
+    THIN = ("<html lang='en'><head><title>Moved page</title>"
+            "<meta http-equiv='refresh' content='0;url=https://elsewhere.example/'>"
+            "<meta name='viewport' content='width=device-width'>"
+            f"<link rel='canonical' href='{HOST}/'></head><body><h1>Moved</h1></body></html>")
+
+    def setUp(self):
+        self._fetch = audit.fetch
+        self.delays = []
+
+        def fake_fetch(url, ua=None, timeout=15, max_hops=10, delay=0.0):
+            self.delays.append(delay)
+            return {"url": url, "chain": [(url, 200)], "final_url": url, "status": 200,
+                    "headers": {"content-type": "text/html"}, "body": self.THIN, "error": None, "elapsed": 0.1}
+
+        audit.fetch = fake_fetch
+
+    def tearDown(self):
+        audit.fetch = self._fetch
+
+    def test_delay_stays_a_number(self):
+        rep = audit.Report()
+        audit.check_page(HOST + "/", rep, 15, 0.25)
+        ids = {i["id"] for i in rep.items}
+        self.assertIn("head.meta-refresh", ids)
+        self.assertEqual(self.delays, [0.25, 0.25])   # bot fetch, then browser fetch
+
+
+SHELL_TEXT = ("draw a diagram in the browser. This app is free online diagram software. Use it as a flowchart "
+              "maker, network diagram software, to create UML online, as an ER diagram tool, to design a "
+              "database schema, to build BPMN online, as a circuit diagram maker, and more.")
+SHELL = ("<html><head><title>Diagram app</title><link rel='canonical' href='" + HOST + "/app/'>"
+         "<script src='/bundle.js'></script></head><body><h1>Diagram app</h1>"
+         f"<p>{SHELL_TEXT}</p><div id='root'>Loading...</div>"
+         "<p>Please ensure JavaScript is enabled.</p></body></html>")
+FULL = ("<html><head><title>Guide</title><link rel='canonical' href='" + HOST + "/app/'></head><body>"
+        f"<h1>Guide</h1><p>{SHELL_TEXT}</p><p>{SHELL_TEXT}</p>"
+        f"<a href='{HOST}/a/'>a</a><a href='{HOST}/b/'>b</a></body></html>")
+
+
+def one_page(body):
+    """fetch() replacement that answers every request, both user agents, with the same body."""
+    def f(url, ua=None, timeout=15, max_hops=10, delay=0.0):
+        return {"url": url, "chain": [(url, 200)], "final_url": url, "status": 200,
+                "headers": {"content-type": "text/html"}, "body": body, "error": None, "elapsed": 0.01}
+    return f
+
+
+class ShellPage(unittest.TestCase):
+    """A shell whose boilerplate clears the 300-character mark still has nothing to crawl.
+
+    Measured 2026-09-04 on a live single-page app: 386 characters of text, zero internal links.
+    """
+    def run_on(self, body):
+        self._fetch = audit.fetch
+        audit.fetch = one_page(body)
+        try:
+            rep = audit.Report()
+            bot, page = audit.check_page(HOST + "/app/", rep, 5, 0)
+            return page, {i["id"]: i for i in rep.items}
+        finally:
+            audit.fetch = self._fetch
+
+    def test_shell_over_300_chars_without_internal_links_fails(self):
+        page, ids = self.run_on(SHELL)
+        self.assertGreaterEqual(page.text_chars, 300)  # the old text-only rule passed this page
+        self.assertEqual(ids["render.bot-html"]["level"], "FAIL")
+        self.assertIn("0 internal links", ids["render.bot-html"]["message"])
+
+    def test_external_bundle_counts_as_javascript(self):
+        page, _ = self.run_on(SHELL)
+        self.assertEqual(page.script_srcs, 1)  # script_bytes stays 0: the bundle is not inline
+        self.assertEqual(page.script_bytes, 0)
+
+    def test_page_with_text_and_internal_links_passes(self):
+        _, ids = self.run_on(FULL)
+        self.assertEqual(ids["render.bot-html"]["level"], "PASS")
+        self.assertIn("2 internal links", ids["render.bot-html"]["message"])
+
+
+class Rendered(unittest.TestCase):
+    """--rendered compares fields of the same URL, never raw HTML text."""
+    def check(self, raw_body, rendered_body):
+        rep = audit.Report()
+        with tempfile.NamedTemporaryFile("w", suffix=".html", delete=False, encoding="utf-8") as fh:
+            fh.write(rendered_body)
+            path = fh.name
+        try:
+            audit.check_rendered(path, audit.parse(raw_body, HOST + "/app/"), HOST + "/app/", rep)
+        finally:
+            os.unlink(path)
+        return {i["id"]: i for i in rep.items}
+
+    def test_names_what_javascript_adds(self):
+        ids = self.check(SHELL, SHELL.replace("<div id='root'>Loading...</div>",
+                                              "<div id='root'><p>" + SHELL_TEXT * 4 + "</p>"
+                                              + "".join(f"<a href='{HOST}/p{n}/'>p</a>" for n in range(20))
+                                              + "</div>"))
+        self.assertEqual(ids["render.js-only"]["level"], "FAIL")
+        self.assertTrue(any(d.startswith("body text") for d in ids["render.js-only"]["data"]))
+        self.assertTrue(any(d.startswith("internal links") for d in ids["render.js-only"]["data"]))
+
+    def test_no_difference_passes(self):
+        ids = self.check(FULL, FULL)
+        self.assertEqual(ids["render.js-only"]["level"], "PASS")
+
+    def test_missing_file_is_reported_not_raised(self):
+        rep = audit.Report()
+        audit.check_rendered("/no/such/file.html", audit.parse(FULL, HOST + "/"), HOST + "/", rep)
+        self.assertEqual(rep.items[0]["level"], "FAIL")
 
 
 if __name__ == "__main__":
