@@ -3,7 +3,7 @@
 
 Usage:
   scaffold.py [--root docs/seo] DOMAIN [DOMAIN ...]   create folders and files; never overwrites
-  scaffold.py [--root docs/seo] --check               list missing files per domain folder
+  scaffold.py [--root docs/seo] --check               list missing files, directories and template sections
   scaffold.py [--root docs/seo] DOMAIN --log          print this week's log path (created if missing), the next action id, and its commit trailer
   scaffold.py [--root docs/seo] DOMAIN --due          print actions whose verify-after date has passed
 
@@ -44,6 +44,8 @@ def render(name, **subs):
 def create(root, domain):
     base = root / domain
     for d in DIRS:
+        if not (base / d).is_dir():
+            print(f"created {base / d}/")
         (base / d).mkdir(parents=True, exist_ok=True)
         keep = base / d / ".gitkeep"
         if d != "exports" and not keep.exists():
@@ -88,23 +90,39 @@ def update_readme(root):
         print(f"updated {readme} (domain table)")
 
 
+def headings(text):
+    return [l.strip() for l in text.splitlines() if l.startswith("## ")]
+
+
 def check(root):
-    missing = []
+    """Missing files and directories, plus a heading a template has and the workspace file lacks.
+
+    A template gains a section between releases; the file scaffolded before it never does, because
+    create() never overwrites. Without this the gap is silent and the skill that reads the section
+    finds nothing.
+    """
+    missing, stale = [], []
     if not (root / "README.md").exists():
         missing.append(root / "README.md")
     for p in sorted(root.iterdir()) if root.exists() else []:
         if not p.is_dir():
             continue
-        for f in FILES:
+        for f, tpl in FILES.items():
             if not (p / f).exists():
                 missing.append(p / f)
+                continue
+            have = headings((p / f).read_text(encoding="utf-8"))
+            stale += [(p / f, h) for h in headings(render(tpl, DOMAIN=p.name)) if h not in have]
         for d in DIRS:
             if not (p / d).is_dir():
                 missing.append(p / d)
     for m in missing:
         print(f"missing {m}")
-    print("ok" if not missing else f"{len(missing)} missing")
-    return 1 if missing else 0
+    for f, h in stale:
+        print(f"section missing {f}: {h}")
+    total = len(missing) + len(stale)
+    print("ok" if not total else f"{total} missing")
+    return 1 if total else 0
 
 
 def week_bounds(day):
@@ -161,8 +179,11 @@ def due(root, domain, today):
             if status in ("applied", "verify") and re.match(r"\d{4}-\d{2}-\d{2}$", after) \
                     and dt.date.fromisoformat(after) <= today:
                 found += 1
+                # Then is the starting value the verdict is measured from: printing the row without
+                # it means opening the file again before anything can be graded.
                 print(f"{r.get('id')} | {r.get('bucket')} | {r.get('url')} | {r.get('query')} | "
-                      f"{r.get('action')} | applied {r.get('applied')} | verify after {after} | {f.name}")
+                      f"{r.get('action')} | then {r.get('then')} | applied {r.get('applied')} | "
+                      f"verify after {after} | {f.name}")
     print("nothing due" if not found else f"{found} due")
 
 

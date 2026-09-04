@@ -693,7 +693,7 @@ def check_site(start_final, rep, timeout, delay, page=None, page_headers=None):
     if urls_in_sitemap:
         foreign = [x for x in urls_in_sitemap if not same_site(x, origin)]
         http_only = [x for x in urls_in_sitemap if x.startswith("http://")]
-        msg = f"{len(urls_in_sitemap)} URLs in {len(seen_maps)} sitemap file(s), {lastmod} with <lastmod>"
+        msg = f"{len(urls_in_sitemap)} unique URLs in {len(seen_maps)} sitemap file(s), {lastmod} with <lastmod>"
         rep.add("Site", "PASS" if lastmod else "WARN", "site.sitemap",
                 msg + ("" if lastmod else ". Add real <lastmod> dates; Google ignores priority/changefreq"))
         if lastmod_values:

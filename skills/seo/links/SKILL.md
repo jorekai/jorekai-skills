@@ -11,7 +11,7 @@ With a workspace, the target list is `docs/seo/<domain>/outreach.csv`, the ancho
 
 ## Steps
 
-1. **Internal links, before any outreach.** Find 2–5 existing pages on the site that discuss the target topic (grep the content directory, or site search). Add one contextual link each with a descriptive anchor: the target query or a natural variant. Highest-traffic relevant page first.
+1. **Internal links, before any outreach.** Find 2–5 existing pages on the site that discuss the target topic (grep the content directory; site not in this repository: the crawl from `jorekai-seo:tech-audit` or the page rows of the newest export). Add one contextual link each with a descriptive anchor: the target query or a natural variant. Highest-traffic relevant page first.
    Done when the target has ≥ 2 new inbound internal links, each listed as source URL, anchor, and paragraph.
 
 2. **Target list.** `outreach.csv` with `url, site, contact, why, status` from:

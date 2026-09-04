@@ -25,7 +25,7 @@ Reads `docs/seo/<domain>/config.md` for `brand_regex`, `expected_ctr_1`, `min_im
    Done when the report prints the site baseline and six buckets.
 
 3. **Grade earlier actions.** `python3 <setup>/scripts/scaffold.py <domain> --due` (path relative to the `jorekai-seo:setup` skill) lists rows whose verify-after date has passed. For each row take Then from its `Then` column, Now from the new export, and the matching median from the report's "Site baseline" section. The bucket names the metric: position for `striking` and `unindexed`, CTR for `ctr`, clicks for `decay` and `content`. The verdict, in this order:
-   - `verify`, when the export window does not yet reach the verify date. Nothing else is decided.
+   - `verify`, when the export window does not yet reach the verify date. Nothing else is decided. `--due` lists a row against today, so a row is listed before any export can grade it; the export window decides.
    - `too-small`, when the row's impressions stay under `min_impressions` in both exports. The change was never testable; leave the page alone and raise the threshold if these pile up.
    - `won`, when the metric moved the right way by more than the baseline for that metric.
    - `no-change` otherwise, including a page that moved the right way but less than the baseline.

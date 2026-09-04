@@ -12,7 +12,7 @@ Scaffold the workspace every other `jorekai-seo:*` skill reads and writes. Promp
 ## Steps
 
 1. **Explore the repo before asking anything.**
-   - Domains: `git remote -v`, existing `docs/seo/*/`, hosting and framework config (`vercel.json`, `netlify.toml`, `wrangler.toml`, `CNAME`, `site` in `astro.config.*`, `baseURL` in `hugo.toml`, `url` in `_config.yml`, `next.config.*`, `nuxt.config.*`), `Sitemap:` lines in `robots.txt`. Arguments name the domains when given.
+   - Domains: `git remote -v`, existing `docs/seo/*/`, hosting and framework config (`vercel.json`, `netlify.toml`, `wrangler.toml`, `CNAME`, `site` in `astro.config.*`, `baseURL` in `hugo.toml`, `url` in `_config.yml`, `next.config.*`, `nuxt.config.*`), `Sitemap:` lines in `robots.txt`. Arguments name the domains when given; outside a repository `git remote -v` fails and the arguments or the user are the only source.
    - Content directory: where pages or posts live (`content/`, `src/content/`, `posts/`, `pages/`, `app/`).
    - Head template: grep `<title`, `rel="canonical"`, `og:title`; the file that emits them for content pages.
    - Sitemap and robots: static files, or a generator plugin and how it sets `lastmod`.

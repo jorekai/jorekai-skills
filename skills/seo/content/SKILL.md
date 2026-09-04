@@ -26,7 +26,7 @@ Workspace: `docs/seo/<domain>/` holds `strategy.md` (clusters, evidence inventor
 5. **On-page pass** with [references/on-page-checklist.md](references/on-page-checklist.md): title ≤ 60 characters with the keyword in the first half, meta 120–160 characters with a reason to click, slug = shortened H1, alt on the first image, 2 outgoing internal links to related pages, and 2 incoming internal links from older pages named as source URL plus anchor.
    Done when every checklist line is ticked or handed to the author as open.
 
-6. **Refresh rule** for an existing page: change the body materially (new section, updated numbers, removed stale claims), then move the visible date, `dateModified`, and `lastmod` together. Without a body change the date stays.
+6. **Refresh rule** for an existing page: change the body materially (new section, updated numbers, removed stale claims), re-check every dated claim about someone else in the sections the refresh keeps, then move the visible date, `dateModified`, and `lastmod` together. Without a body change the date stays.
 
 ## Rules
 

@@ -24,6 +24,8 @@ The median page moved by {{BASELINE_POSITION}} in position and {{BASELINE_CLICKS
 
 Won {{WON}}, no change {{NO_CHANGE}}, too small to tell {{TOO_SMALL}}, still measuring {{OPEN}}.
 
+{{EXCLUDED_WEEK}}
+
 ## AI answers
 
 | Source | This month | Month before | Read on |

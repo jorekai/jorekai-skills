@@ -17,6 +17,7 @@ Working files for search work on this repository. One folder per canonical host.
 - `glossary.md`: the niche's vocabulary, one term per entry with the words to avoid. Written by `jorekai-seo:grill`; every draft, title, and anchor uses these terms.
 - `log/YYYY-Www.md`: one file per ISO week. The only place actions and their outcomes are recorded.
 - `briefs/<slug>.md`: per-page brief from `jorekai-seo:content` (target query, SERP recon, outline, evidence answers, and an append-only "SERP observations" section, one dated line per look at the result page with market, device, and the blocks above the organic results).
+- `briefs/<slug>.review.md`: the two-axis report from `jorekai-seo:review` for that page.
 - `drafts/<slug>.md`: drafts before they move into the site's content directory.
 - `exports/`: Search Console exports, named `YYYY-MM-DD-<what>.zip` or `.csv`. Ignored by git.
 - `reports/YYYY-MM.md`: the monthly report for the site's owner, written by `jorekai-seo:report` from the month's exports and log weeks.

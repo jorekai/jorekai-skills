@@ -24,7 +24,7 @@ A draft can pass one and fail the other; merging the reports lets one axis hide 
    **Standards reviewer** gets: the draft, [the on-page checklist](../content/references/on-page-checklist.md), `glossary.md`, the brief's evidence answers and `strategy.md`'s evidence inventory. Brief: "Report (a) every unticked checklist line, quoting the element; (b) every term that has a glossary entry but appears as an `_Avoid_` word; (c) the fabrication check: list every sentence that states first-hand experience, a number, a date, a named study, or a quote, and for each name the evidence answer, inventory row, or linked source it traces to; a sentence with no trace is a blocker, an unfilled `[SLOT]` is open, not a blocker. Under 400 words."
    Done when both reports exist.
 
-3. **Aggregate** under `## Intent` and `## Standards`, each report verbatim or lightly cleaned, then one line per axis: finding count, worst finding, verdict `ship` or `fix first`. A fabrication blocker makes Standards `fix first` regardless of anything else. No single winner across axes.
+3. **Aggregate** under `## Intent` and `## Standards`, each report verbatim or lightly cleaned, then one line per axis: finding count, worst finding, verdict `ship` or `fix first`. A fabrication blocker makes Standards `fix first` regardless of anything else. No single winner across axes. With a workspace the file is `briefs/<slug>.review.md`.
 
 ## Then
 

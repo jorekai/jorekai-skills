@@ -12,7 +12,8 @@ Reads `docs/seo/<domain>/config.md` for the canonical host and the sitemap; writ
 ## Steps
 
 1. **Inventory what has to survive.** Crawl the old site into `audits/YYYY-MM-DD-premigration.json` (`jorekai-seo:tech-audit`, `--crawl` above the sitemap count), and put the pages table of a fresh export into `exports/`. The URLs with clicks or impressions are the ones a lost redirect costs; the rest follow the same rules but carry no history.
-   Done when both files exist and the report names how many URLs each holds and how many carry clicks.
+   Move already made: the old host answers a redirect on every path and the new property holds no row for it, so neither source exists. Build the inventory from the commit that changed the URLs, the old sitemap in the repository's history, internal links that still name the old host, and an export of the old property while it still has one.
+   Done when the inventory exists, the report names how many URLs it holds and how many carry clicks, and, for a move already made, which of those sources it came from.
 
 2. **Write the map.** One row per old URL in [templates/redirect-map.csv](templates/redirect-map.csv) (`old,new,note`): every URL with clicks or impressions by hand, the rest by a rule that the note names. Each target answers the same intent as its source. A target that no longer exists is not the home page: it is the nearest page that answers the same question, or a `410` when nothing does.
    Done when every URL from step 1 with clicks or impressions has a row, no row points at the home page as a fallback, and the number of rows is written down.

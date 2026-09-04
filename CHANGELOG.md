@@ -2,6 +2,17 @@
 
 One entry per plugin version. The version at the top equals `version` in `.claude-plugin/plugin.json`; `scripts/check.sh` checks that. Dates are ISO.
 
+## 1.9.1 (2026-09-04)
+
+- Fixed: `status.py` no longer returns early when the connect wizard or the grill has not run. Unfinished setup is an item in the `now` list and the stage comes from the whole folder, so open `tech` rows, rows due for a verdict, drafts and the missing monthly report stay visible. `decisions/0010` records the rule.
+- Fixed: `scaffold.py --check` names a heading a template has gained and a workspace file lacks. A `strategy.md` scaffolded before 1.8.0 has no `## Assistant prompts`, which `jorekai-seo:report` reads.
+- Fixed: `scaffold.py --due` prints the row's `Then` value, the one column the verdict is measured from, and `create` prints the directories it makes.
+- Fixed: `status.py` counts a review saved as `briefs/<slug>.review.md` as a review, not as a brief without a draft. `jorekai-seo:review` and the workspace README name that path.
+- Changed: `jorekai-seo:connect` requires `static_dir` and `publish` only for a site inside the repository, and the IndexNow key file becomes a wizard stage when it is not.
+- Changed: `jorekai-seo:migrate` step 1 names the sources for a move already made; `jorekai-seo:links` step 1 names the crawl and the export for a site outside the repository; hypothesis 5 of `jorekai-seo:diagnose` gains a check that needs no git history.
+- Changed: `jorekai-seo:report` counts a log week by where most of its days fall and names the week that went to the neighbouring month; `jorekai-seo:content` re-checks dated third-party claims before a refresh moves the date.
+- Changed: `audit.py` says `unique URLs` in the sitemap count, `status.py` says `1 day old`, and the `data` field of an audit item is described as per item.
+
 ## 1.9.0 (2026-09-04)
 
 - Added: `decisions/0009` records why a verdict is measured against the median of all pages and why a row under the impression threshold gets no verdict.

@@ -10,7 +10,7 @@ One loop drives everything: **get indexed, find what almost ranks, fix that page
 
 ## Workspace
 
-Every skill reads and writes `docs/seo/<domain>/` in the site's repository: `config.md` (site facts), `connections.md` (what is connected), `strategy.md` and `glossary.md` (from the interview), `log/` (every action and its outcome, one file per week), `briefs/`, `drafts/`, `exports/`. Layout and log format: `docs/seo/README.md`, written by `jorekai-seo:setup`. No workspace yet: `jorekai-seo:setup` first.
+Every skill reads and writes `docs/seo/<domain>/` in the site's repository: `config.md` (site facts), `connections.md` (what is connected), `strategy.md` and `glossary.md` (from the interview), `log/` (every action and its outcome, one file per week), `briefs/` (page briefs and their review), `drafts/`, `exports/`, `audits/`, `reports/`. Layout and log format: `docs/seo/README.md`, written by `jorekai-seo:setup`. No workspace yet: `jorekai-seo:setup` first.
 
 ## Flows
 

@@ -9,7 +9,7 @@ argument-hint: "[domain]"
 
 A **wizard** is a bash script that walks a human through the clicks only a human can make: it opens each URL, says what to click and copy, checks what it can check itself, and records every result in `docs/seo/<domain>/connections.md`. The library in [templates/wizard.sh](templates/wizard.sh) is fixed (stages, prompts, `record`, `http_status`); this skill only scopes the procedure and writes the stages.
 
-Needs the workspace from `jorekai-seo:setup` (`config.md` with `canonical_host`, `sitemap`, `static_dir`, `publish`). Missing: run `jorekai-seo:setup` first.
+Needs the workspace from `jorekai-seo:setup`: `config.md` with `canonical_host` and `sitemap`, plus `static_dir` and `publish` when the site is in this repository. Missing: run `jorekai-seo:setup` first.
 
 ## Steps
 
@@ -18,7 +18,7 @@ Needs the workspace from `jorekai-seo:setup` (`config.md` with `canonical_host`,
 
 2. **Do the agent's part before the wizard.** Nothing in the wizard may depend on the agent's work being unfinished:
    - Sitemap and robots reachable: `curl -sI <sitemap URL>` returns 200 with an XML content type; `robots.txt` lists the sitemap.
-   - IndexNow: generate a key with `python3 -c "import secrets; print(secrets.token_hex(16))"`, write `<static_dir>/<key>.txt` containing exactly the key, deploy (or tell the user to). The key must be reachable at `https://<host>/<key>.txt`.
+   - IndexNow: generate a key with `python3 -c "import secrets; print(secrets.token_hex(16))"`, write `<static_dir>/<key>.txt` containing exactly the key, deploy (or tell the user to). The key must be reachable at `https://<host>/<key>.txt`. Site not in this repository (`static_dir` blank): the agent writes no file, and the key file becomes a stage that prints the key, names where it goes on the server, and checks the URL before the test submission.
    - AI-search crawlers: `robots.txt` matches `ai_search_bots` in `config.md`; fix the file if it does not.
    Done when each check passed or is listed as a stage the human must finish.
 

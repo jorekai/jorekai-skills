@@ -67,6 +67,11 @@ def table_rows(text, heading):
     return rows
 
 
+def plural(n, word):
+    """"1 day", "2 days"."""
+    return f"{n} {word}" if n == 1 else f"{n} {word}s"
+
+
 def file_date(p):
     m = DATE_RE.search(p.name)
     return dt.date.fromisoformat(m.group(1)) if m else dt.date.fromtimestamp(p.stat().st_mtime)
@@ -125,7 +130,9 @@ def read_domain(base, today):
     exports = [p for p in (base / "exports").iterdir() if p.is_file() and p.suffix in (".zip", ".csv")] \
         if (base / "exports").is_dir() else []
     s["export"] = latest(exports)
-    s["briefs"] = sorted(p.stem for p in (base / "briefs").glob("*.md")) if (base / "briefs").is_dir() else []
+    # <slug>.review.md is the jorekai-seo:review report, not a brief waiting for a draft.
+    s["briefs"] = sorted(p.stem for p in (base / "briefs").glob("*.md")
+                         if not p.name.endswith(".review.md")) if (base / "briefs").is_dir() else []
     s["drafts"] = sorted(p.stem for p in (base / "drafts").glob("*.md")) if (base / "drafts").is_dir() else []
     s["reports"] = sorted(p.stem for p in (base / "reports").glob("*.md")) if (base / "reports").is_dir() else []
     return s
@@ -144,17 +151,24 @@ def decide(s, today):
     c = s["connections"]
     if not s["config"]:
         return "setup", ["`jorekai-seo:setup`: fill config.md (canonical host, framework, sitemap, brand_regex, CTR calibration)"], then
+    # Unfinished setup is an item, never a gate: a folder with an audit or log rows is in the loop,
+    # and hiding its open work behind the wizard is how a workspace stalls unseen.
+    setup_open = []
     if not c["GSC_PROPERTY"] or not c["SITEMAP_SUBMITTED_AT"]:
-        now.append("`jorekai-seo:connect`: Search Console property and sitemap submission are not recorded in connections.md "
-                   "(site not live yet: `jorekai-seo:grill` first)")
+        setup_open.append("`jorekai-seo:connect`: Search Console property and sitemap submission are not recorded in connections.md")
     if not s["strategy"] or not s["glossary"]:
-        now.append("`jorekai-seo:grill`: strategy.md and glossary.md are still the template")
-    if now:
-        return "setup", now, then
+        setup_open.append("`jorekai-seo:grill`: strategy.md and glossary.md are still the template")
     a = s["audit"]
+    started = bool(a or s["rows"] or s["briefs"] or s["drafts"])
+    if setup_open and not started:
+        return "setup", setup_open, then
     if a is None:
-        return "audit", ["`jorekai-seo:tech-audit --crawl`: no audits/*.json yet; run until zero FAIL, then the launch checklist"], then
+        return "audit", setup_open + ["`jorekai-seo:tech-audit --crawl`: no audits/*.json yet; run until zero FAIL, then the launch checklist"], then
     stage = "loop"
+    # A verdict is what makes the log learn, so a due row outranks everything else.
+    if s["due"]:
+        now.append(f"`jorekai-seo:gsc-review`: {len(s['due'])} row(s) past their verify date need a verdict "
+                   "(`won` / `no-change` / `too-small`) from a fresh export: " + ", ".join(r.get("id", "?") for r in s["due"]))
     if a["fail"]:
         stage = "audit"
         now.append(f"`jorekai-seo:tech-audit`: {a['file']} still has {a['fail']} FAIL ({', '.join(a['fail_ids'])}); "
@@ -164,9 +178,10 @@ def decide(s, today):
     if tech_todo:
         now.append("apply the open `tech` rows, then set Status `applied`, the date, and `verify after` "
                    f"(+{TECH_VERIFY_DAYS} days): " + ", ".join(r.get("id", "?") for r in tech_todo))
-    if s["due"]:
-        now.append(f"`jorekai-seo:gsc-review`: {len(s['due'])} row(s) past their verify date need a verdict "
-                   "(`won` / `no-change` / `too-small`) from a fresh export: " + ", ".join(r.get("id", "?") for r in s["due"]))
+    last_month = (today.replace(day=1) - dt.timedelta(days=1)).strftime("%Y-%m")
+    if s["rows"] and last_month not in s["reports"]:
+        now.append(f"`jorekai-seo:report` for {last_month}: reports/{last_month}.md does not exist yet")
+    now += setup_open
     exp = s["export"]
     if exp is None:
         step = ("export Search Console (Performance > Export, 28 days, plus the previous 28 days) into exports/, "
@@ -183,7 +198,7 @@ def decide(s, today):
         if exp.name not in s["log_source"]:
             now.append(f"`jorekai-seo:gsc-review` on exports/{exp.name}: not named in any log's Source line yet")
         elif age > EXPORT_MAX_AGE:
-            now.append(f"export Search Console again (exports/{exp.name} is {age} days old), then `jorekai-seo:gsc-review`")
+            now.append(f"export Search Console again (exports/{exp.name} is {plural(age, 'day')} old), then `jorekai-seo:gsc-review`")
     for r in other_todo:
         skill = {"content": "jorekai-seo:content", "links": "jorekai-seo:links", "distribution": "jorekai-seo:distribution",
                  "diagnose": "jorekai-seo:diagnose"}.get(r.get("bucket"), "apply per jorekai-seo:gsc-review actions.md")
@@ -203,9 +218,6 @@ def decide(s, today):
         for bucket, skill in (("links", "jorekai-seo:links"), ("distribution", "jorekai-seo:distribution")):
             if not any(x.get("bucket") == bucket and x.get("url") == url for x in s["rows"]):
                 now.append(f"`{skill}` for {url} (shipped as {r.get('id', '?')}, no `{bucket}` row yet)")
-    last_month = (today.replace(day=1) - dt.timedelta(days=1)).strftime("%Y-%m")
-    if s["rows"] and last_month not in s["reports"]:
-        now.append(f"`jorekai-seo:report` for {last_month}: reports/{last_month}.md does not exist yet")
     if not now:
         now.append("nothing open this week; next export and `jorekai-seo:gsc-review` next week")
     if s["next_verify"]:
@@ -229,7 +241,7 @@ def report(s, today):
                + f" | due for verdict {len(s['due'])}"
                + (f" | next verify {s['next_verify'].isoformat()}" if s["next_verify"] else ""))
     exp = s["export"]
-    out.append("exports      " + (f"{exp.name} ({(today - file_date(exp)).days} days old)" if exp else "none"))
+    out.append("exports      " + (f"{exp.name} ({plural((today - file_date(exp)).days, 'day')} old)" if exp else "none"))
     out.append(f"briefs       {', '.join(s['briefs']) or 'none'}")
     out.append(f"drafts       {', '.join(s['drafts']) or 'none'}")
     out.append(f"reports      {', '.join(s['reports']) or 'none'}")
