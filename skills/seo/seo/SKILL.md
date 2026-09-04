@@ -27,6 +27,8 @@ Every skill reads and writes `docs/seo/<domain>/` in the site's repository: `con
 
 **Site not in a repository** (hosted CMS): fixes and snippet rows go to a session on the server, prompt and report format in [references/session-contract.md](references/session-contract.md), stack recipes in [references/stacks/](references/stacks/).
 
+**Moving a domain, a host, or the URLs**: `jorekai-seo:migrate`. Inventory, redirect map, the owner's console steps, then `--redirects` until zero FAIL.
+
 **Something dropped**: `jorekai-seo:diagnose`. Six hypotheses, one change, verify date in the log.
 
 **Lost the thread**: `jorekai-seo:and-now` reads the workspace and names the stage, the open items, and the next skill.
@@ -45,6 +47,7 @@ Every skill reads and writes `docs/seo/<domain>/` in the site's repository: `con
 | Write or refresh a page | `jorekai-seo:content` | agent or you |
 | Is this draft right for the query and clean on the page? | `jorekai-seo:review` | agent or you |
 | Why did clicks, impressions, or position drop? | `jorekai-seo:diagnose` | agent or you |
+| Moving a domain, a host, or the URL structure | `jorekai-seo:migrate` | agent or you |
 | Get links | `jorekai-seo:links` | agent or you |
 | Promote a page | `jorekai-seo:distribution` | agent or you |
 

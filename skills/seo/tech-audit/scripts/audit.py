@@ -22,6 +22,7 @@ itself the finding. Redirects are followed only to http:// and https:// targets.
 Exit code 0 always; findings are in the report, not the exit status.
 """
 import argparse
+import csv
 import json
 import pathlib
 import random
@@ -257,6 +258,72 @@ def strip_tracking(url):
 
 def is_cart(url):
     return bool(CART_RE.search(url))
+
+
+def load_redirect_map(path):
+    """Rows of (old, new or None) from a CSV. Header names old/from/source and new/to/target are
+    read when present; without a header the first column is the old URL and the second the target."""
+    with open(path, encoding="utf-8-sig", errors="replace") as f:
+        rows = [r for r in csv.reader(f) if r and r[0].strip()]
+    if not rows:
+        return []
+    head = [c.strip().lower() for c in rows[0]]
+    old_i, new_i, start = 0, (1 if len(head) > 1 else None), 0
+    if not head[0].startswith("http"):
+        start = 1
+        for i, h in enumerate(head):
+            if h in ("old", "from", "source", "old url", "alt"):
+                old_i = i
+            elif h in ("new", "to", "target", "new url", "neu"):
+                new_i = i
+    out = []
+    for r in rows[start:]:
+        old = r[old_i].strip() if len(r) > old_i else ""
+        new = r[new_i].strip() if new_i is not None and len(r) > new_i else ""
+        if old.lower().startswith(("http://", "https://")):
+            out.append((old, new or None))
+    return out
+
+
+def check_redirects(path, rep, timeout, delay, section="Redirect map"):
+    """Every old URL of a move: one permanent hop, a live target, and the target the map names."""
+    rows = load_redirect_map(path)
+    if not rows:
+        rep.add(section, "FAIL", "redirects.map", f"No URL rows in {path}: the first column holds the old URLs")
+        return
+    problems = {k: [] for k in ("error", "missing", "temporary", "chain", "broken", "wrong-target")}
+    ok = 0
+    for old, new in rows:
+        r = fetch(old, timeout=timeout, delay=delay)
+        hops = [(u, st) for u, st in r["chain"] if isinstance(st, int) and 300 <= st < 400]
+        if r["status"] is None:
+            problems["error"].append(f"{old}: {r.get('error', 'no response')}")
+            continue
+        clean = True
+        if not hops:
+            problems["missing"].append(f"{old}: answers {r['status']} itself, no redirect")
+            continue
+        if hops[0][1] not in (301, 308):
+            problems["temporary"].append(f"{old}: first hop {hops[0][1]}, signals stay on the old URL")
+            clean = False
+        if len(hops) > 1:
+            problems["chain"].append(f"{old}: {len(hops)} hops to {r['final_url']}")
+            clean = False
+        if r["status"] != 200:
+            problems["broken"].append(f"{old}: target {r['final_url']} answers {r['status']}")
+            clean = False
+        elif new and norm(r["final_url"]) != norm(new):
+            problems["wrong-target"].append(f"{old}: lands on {r['final_url']}, the map says {new}")
+            clean = False
+        ok += clean
+    rep.add(section, "PASS" if ok == len(rows) else "INFO", "redirects.map",
+            f"{len(rows)} rows checked, {ok} land on their target with one permanent hop")
+    levels = {"error": "FAIL", "missing": "FAIL", "broken": "FAIL", "wrong-target": "FAIL",
+              "temporary": "WARN", "chain": "WARN"}
+    for key, items in problems.items():
+        if items:
+            rep.add(section, levels[key], f"redirects.{key}",
+                    f"{len(items)}: " + "; ".join(items[:5]) + (" ..." if len(items) > 5 else ""), data=items)
 
 
 def check_schema(p, rep, section):
@@ -888,6 +955,7 @@ def main():
     ap.add_argument("url")
     ap.add_argument("--crawl", type=int, default=0, metavar="N", help="crawl up to N internal pages for duplicates, broken links, orphans")
     ap.add_argument("--rendered", metavar="FILE", help="saved rendered DOM of URL itself; names what exists only after JavaScript")
+    ap.add_argument("--redirects", metavar="FILE", help="CSV of the old URLs of a move (and their targets); each is fetched once")
     ap.add_argument("--timeout", type=float, default=15)
     ap.add_argument("--delay", type=float, default=0.25, help="seconds between requests")
     ap.add_argument("--json", action="store_true")
@@ -903,6 +971,8 @@ def main():
         sitemap, robots = check_site(final, rep, a.timeout, a.delay, page, bot["headers"])
         if a.crawl:
             crawl(final, a.crawl, rep, a.timeout, a.delay, sitemap, robots)
+    if a.redirects:
+        check_redirects(a.redirects, rep, a.timeout, a.delay)
     if a.json:
         print(json.dumps({"url": url, "final_url": final, "counts": rep.counts(), "items": rep.items}, indent=2, ensure_ascii=False))
     else:

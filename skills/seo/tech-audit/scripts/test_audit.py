@@ -368,5 +368,84 @@ class Schema(unittest.TestCase):
         self.assertEqual(ids["head.json-ld"]["data"], ["Organization"])
 
 
+OLD = "https://old.example.com"
+
+# A move: one clean hop, a temporary hop, a chain, a dead target, a URL that never moved, a wrong target.
+MOVED = {
+    OLD + "/a/": (301, HOST + "/a/"),   HOST + "/a/": (200, "ok"),
+    OLD + "/b/": (302, HOST + "/b/"),   HOST + "/b/": (200, "ok"),
+    OLD + "/c/": (301, OLD + "/c2/"),   OLD + "/c2/": (301, HOST + "/c/"), HOST + "/c/": (200, "ok"),
+    OLD + "/d/": (301, HOST + "/gone/"), HOST + "/gone/": (404, ""),
+    OLD + "/e/": (200, "still here"),
+    OLD + "/f/": (308, HOST + "/other/"), HOST + "/other/": (200, "ok"),
+}
+
+MAP = f"""old,new
+{OLD}/a/,{HOST}/a/
+{OLD}/b/,{HOST}/b/
+{OLD}/c/,{HOST}/c/
+{OLD}/d/,{HOST}/gone/
+{OLD}/e/,{HOST}/e/
+{OLD}/f/,{HOST}/f/
+"""
+
+
+def moved_fetch(url, ua=None, timeout=15, max_hops=10, delay=0.0):
+    chain = []
+    current = url
+    for _ in range(max_hops):
+        status, payload = MOVED.get(current, (404, ""))
+        chain.append((current, status))
+        if 300 <= status < 400:
+            current = payload
+            continue
+        return {"url": url, "chain": chain, "final_url": current, "status": status,
+                "headers": {"content-type": "text/html"}, "body": payload, "error": None, "elapsed": 0.0}
+    raise AssertionError("redirect loop in fixture")
+
+
+class RedirectMap(unittest.TestCase):
+    """--redirects: one permanent hop per old URL, a live target, and the target the map names."""
+
+    def run_map(self, text):
+        real = audit.fetch
+        audit.fetch = moved_fetch
+        rep = audit.Report()
+        with tempfile.NamedTemporaryFile("w", suffix=".csv", delete=False, encoding="utf-8") as fh:
+            fh.write(text)
+            path = fh.name
+        try:
+            audit.check_redirects(path, rep, 5, 0)
+        finally:
+            audit.fetch = real
+            os.unlink(path)
+        return {i["id"]: i for i in rep.items}
+
+    def test_every_shape_of_a_broken_move_is_named_once(self):
+        ids = self.run_map(MAP)
+        self.assertIn("6 rows checked, 1 land", ids["redirects.map"]["message"])
+        self.assertIn("/b/", ids["redirects.temporary"]["message"])
+        self.assertIn("2 hops", ids["redirects.chain"]["message"])
+        self.assertIn("/d/", ids["redirects.broken"]["message"])
+        self.assertIn("no redirect", ids["redirects.missing"]["message"])
+        self.assertIn("/f/", ids["redirects.wrong-target"]["message"])
+        self.assertEqual(ids["redirects.broken"]["level"], "FAIL")
+        self.assertEqual(ids["redirects.temporary"]["level"], "WARN")
+
+    def test_a_clean_map_passes(self):
+        ids = self.run_map(f"old,new\n{OLD}/a/,{HOST}/a/\n")
+        self.assertEqual(ids["redirects.map"]["level"], "PASS")
+        self.assertEqual(len(ids), 1)
+
+    def test_a_map_without_a_header_and_with_other_column_names(self):
+        for text in (f"{OLD}/a/,{HOST}/a/\n", f"from,to\n{OLD}/a/,{HOST}/a/\n"):
+            ids = self.run_map(text)
+            self.assertEqual(ids["redirects.map"]["level"], "PASS", text)
+
+    def test_a_file_without_urls_is_the_finding(self):
+        ids = self.run_map("old,new\nnot a url,also not\n")
+        self.assertEqual(ids["redirects.map"]["level"], "FAIL")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=1)

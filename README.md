@@ -50,14 +50,16 @@ flowchart TD
         M1["jorekai-seo:report<br/>totals against the median page, the month's verdicts, AI answers, three next steps"]
     end
 
-    subgraph D["Drop"]
+    subgraph D["Drop, or a move"]
         D1["jorekai-seo:diagnose<br/>make the drop visible in GSC data, six hypotheses in order, one change, verify date"]
+        D2["jorekai-seo:migrate<br/>inventory, redirect map, --redirects until zero FAIL"]
     end
 
     S4 --> W0
     W1 -. "once a month" .-> M1
     W1 -- "clicks or position fell" --> D1
     D1 --> W4
+    D2 --> S4
     W1 -- "FAIL in the audit" --> S4
 ```
 
@@ -74,6 +76,7 @@ flowchart TD
 | Approve | `jorekai-seo:review` | Two separate reports, each with a verdict: `ship` or `fix first` | A page can be right for the query and still unbacked, or the reverse. Separate axes cannot hide each other. |
 | Link | `jorekai-seo:links` | Internal links first, then `outreach.csv` with a reason per target, emails, status | Internal links cost nothing and work immediately. Paid links carry `rel="sponsored"`. |
 | Distribute | `jorekai-seo:distribution` | Three texts, keyword in line one, the link where it completes the answer | Reach and referral traffic, not ranking credit: Reddit and LinkedIn set `nofollow`. |
+| Move | `jorekai-seo:migrate` | Inventory of the old URLs, `redirect-map.csv`, the owner's console steps, then `audit.py --redirects` until zero FAIL, `tech` rows in the log | Every URL that earns clicks either survives as a permanent redirect or its ranking is gone. A move judged by "the site is up" is not judged. |
 | Repair | `jorekai-seo:diagnose` | The red line from the export, ranked hypotheses with predictions, one change, `diagnose` row in the log | Data first, theory second. Two changes in one verify window make the outcome unreadable. |
 | Report | `jorekai-seo:report` | `reports/YYYY-MM.md`: totals and the median page from the month's exports, every action with its verdict, AI answer visibility, three next steps with log ids | The owner asks what the money bought. Everything needed sits in the workspace already, so the report costs no new data and no new claim. |
 | Orient | `jorekai-seo:and-now` | Stage (setup, audit, loop), open log rows, verify dates due, export age, briefs without drafts, drafts not shipped, last month without a report; the next skill to call | The state of the loop lives in files, not in anyone's memory. One command answers "and now?" after a break. |
@@ -99,6 +102,7 @@ Theme `skills/seo/`. You call user-invoked skills yourself (`/jorekai-seo:<name>
 | `jorekai-seo:content` | model | `references/page-types.md`, `references/on-page-checklist.md` |
 | `jorekai-seo:review` | model | two subagent briefs with a fixed word limit |
 | `jorekai-seo:diagnose` | model | `references/hypotheses.md`: six hypotheses with prediction, check, fix |
+| `jorekai-seo:migrate` | model | `tech-audit/scripts/audit.py URL --redirects map.csv`: one fetch per row, permanent hop, live target, the target the map names; `templates/redirect-map.csv` |
 | `jorekai-seo:links` | model | `references/link-quality.md`, `references/outreach-templates.md` |
 | `jorekai-seo:distribution` | model | `references/formats.md` |
 

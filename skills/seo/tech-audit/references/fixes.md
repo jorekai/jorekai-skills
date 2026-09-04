@@ -47,6 +47,15 @@
 - `img.dimensions`: most images lack `width` and `height`. web.dev: always set both (or CSS `aspect-ratio`) so the browser reserves space; the common cause of layout shift (CLS).
 - `links.internal`: Every page links to related pages and is linked from at least one. Descriptive anchors. Only `<a href="...">` counts as a crawlable link; buttons, `onclick` handlers, and `<span>` navigation do not. Google removed the "100 links per page" guideline before 2008; there is no cap, only "reasonable".
 
+## redirects.* (only with `--redirects`, one fetch per row of a move's map)
+
+- `redirects.map`: the file holds no URL rows. The first column carries the old URLs; `old,new` or `from,to` headers are read, and a file without a header is read positionally.
+- `redirects.missing`: the old URL still answers on its own. Nothing was redirected, and both URLs now compete. Add the redirect, then re-run.
+- `redirects.temporary`: the first hop is a 302, 303, or 307. Google keeps the old URL as the canonical, so the signals stay where the content no longer is. Use 301 or 308.
+- `redirects.chain`: more than one hop. Collapse the map so every old URL points straight at its final target; a chain loses time on every crawl and hops are capped at 10.
+- `redirects.broken`: the target answers something other than 200. Either the target moved again or the page was never built; repoint the row or serve 410 where nothing replaces it.
+- `redirects.wrong-target`: the redirect lands somewhere other than the row's target, usually a catch-all rule that sends everything to the home page. A wrong target loses the ranking as reliably as no redirect.
+
 ## site.*
 
 - `site.robots`: Missing: create `/robots.txt` with `User-agent: *`, `Allow: /`, explicit `Disallow` for admin, search, and cart paths, and `Sitemap: https://host/sitemap.xml`. Blocking: remove the `Disallow` that covers public pages. `robots.txt` blocks crawling, not indexing; use `noindex` to keep a crawlable page out of the index.
