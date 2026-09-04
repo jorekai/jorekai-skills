@@ -127,6 +127,7 @@ def read_domain(base, today):
     s["export"] = latest(exports)
     s["briefs"] = sorted(p.stem for p in (base / "briefs").glob("*.md")) if (base / "briefs").is_dir() else []
     s["drafts"] = sorted(p.stem for p in (base / "drafts").glob("*.md")) if (base / "drafts").is_dir() else []
+    s["reports"] = sorted(p.stem for p in (base / "reports").glob("*.md")) if (base / "reports").is_dir() else []
     return s
 
 
@@ -202,6 +203,9 @@ def decide(s, today):
         for bucket, skill in (("links", "jorekai-seo:links"), ("distribution", "jorekai-seo:distribution")):
             if not any(x.get("bucket") == bucket and x.get("url") == url for x in s["rows"]):
                 now.append(f"`{skill}` for {url} (shipped as {r.get('id', '?')}, no `{bucket}` row yet)")
+    last_month = (today.replace(day=1) - dt.timedelta(days=1)).strftime("%Y-%m")
+    if s["rows"] and last_month not in s["reports"]:
+        now.append(f"`jorekai-seo:report` for {last_month}: reports/{last_month}.md does not exist yet")
     if not now:
         now.append("nothing open this week; next export and `jorekai-seo:gsc-review` next week")
     if s["next_verify"]:
@@ -228,6 +232,7 @@ def report(s, today):
     out.append("exports      " + (f"{exp.name} ({(today - file_date(exp)).days} days old)" if exp else "none"))
     out.append(f"briefs       {', '.join(s['briefs']) or 'none'}")
     out.append(f"drafts       {', '.join(s['drafts']) or 'none'}")
+    out.append(f"reports      {', '.join(s['reports']) or 'none'}")
     stage, now, then = decide(s, today)
     out += ["", f"stage: {stage}", "now:"]
     out += [f"  {i}. {step}" for i, step in enumerate(now, 1)]

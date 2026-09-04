@@ -80,6 +80,19 @@ class ExportTest(unittest.TestCase):
         self.assertNotIn("acme", gap)
 
 
+class TotalsTest(unittest.TestCase):
+    """Site totals sum the rows the export holds, and the export caps a table at 1,000 rows."""
+
+    def test_sums_and_ctr(self):
+        t = g.totals([{"key": "a", "clicks": 10, "impressions": 100, "ctr": .1, "position": 3},
+                      {"key": "b", "clicks": 30, "impressions": 300, "ctr": .1, "position": 4}])
+        self.assertEqual((t["rows"], t["clicks"], t["impressions"]), (2, 40, 400))
+        self.assertAlmostEqual(t["ctr"], 0.1)
+
+    def test_an_empty_table_does_not_divide_by_zero(self):
+        self.assertEqual(g.totals([])["ctr"], 0.0)
+
+
 class BaselineTest(unittest.TestCase):
     """Site-wide drift is the yardstick: one page counts as won only above the median page."""
 

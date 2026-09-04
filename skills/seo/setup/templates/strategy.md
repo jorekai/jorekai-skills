@@ -22,6 +22,13 @@ One cluster per intent. `Primary` is the query the page targets; secondary queri
 | # | Cluster | Primary query | Secondary queries | Intent | Page (URL or planned slug) | Priority |
 |---|---|---|---|---|---|---|
 
+## Assistant prompts
+
+Questions a customer would ask an AI assistant, in the market's language. Written once: a changed prompt breaks the monthly comparison in `jorekai-seo:report`.
+
+| # | Prompt | Cluster |
+|---|---|---|
+
 ## Evidence inventory
 
 First-hand material the author can show. Every `[OWN NUMBER]`, `[SCREENSHOT]`, and `[WHAT I TRIED]` slot in a draft draws from here.

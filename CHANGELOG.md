@@ -2,6 +2,13 @@
 
 One entry per plugin version. The version at the top equals `version` in `.claude-plugin/plugin.json`; `scripts/check.sh` checks that. Dates are ISO.
 
+## 1.8.0 (2026-09-04)
+
+- Added: `jorekai-seo:report`, user-invoked, writes `reports/YYYY-MM.md` for the site's owner from files that already exist: the month's totals and median page, every action with its verdict, visibility in AI answers, three next steps with log ids. No script of its own.
+- Added: `gsc_opportunities.py` prints the site totals of both exports, so no report adds up a 1,000-row table by hand.
+- Added: `references/ai-visibility.md` holds the two console reports and the rules that keep a fixed prompt set comparable; `strategy.md` and the grill question bank carry the prompt set itself.
+- Added: `scaffold.py` creates `reports/`, and `status.py` names the missing report for last month.
+
 ## 1.7.0 (2026-09-04)
 
 - Added: `audit.py` reads the JSON-LD on the page. `head.json-ld` lists the types; `head.schema-invalid` names a block that does not parse, which Google then reads none of; `head.schema-no-rich-result` names `FAQPage`, `HowTo`, and the sitelinks `SearchAction`; `head.schema-review` names a rating on a node outside the types stars are shown for, the shape a site rating itself takes.

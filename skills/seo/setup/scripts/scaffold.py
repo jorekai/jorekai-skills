@@ -18,7 +18,7 @@ from pathlib import Path
 TEMPLATES = Path(__file__).resolve().parent.parent / "templates"
 FILES = {"config.md": "config.md", "connections.md": "connections.md",
          "strategy.md": "strategy.md", "glossary.md": "glossary.md"}
-DIRS = ["log", "briefs", "drafts", "exports", "audits"]
+DIRS = ["log", "briefs", "drafts", "exports", "audits", "reports"]
 ID_RE = re.compile(r"\b(\d{4}-W\d{2})-(\d{2})\b")
 LABEL = r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?"
 HOST_RE = re.compile(rf"{LABEL}(?:\.{LABEL})+")

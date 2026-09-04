@@ -46,6 +46,14 @@ Look up first: expand the seed queries via the SERPs (titles, People-also-ask, r
 - For each top cluster: existing URL, or a slug to plan?
 Default: commercial clusters where the site already has impressions first, then informational clusters that feed them by internal links.
 
+## Assistant prompts (needs Keywords), writes "Assistant prompts"
+
+Look up first: the primary query of each top cluster, rewritten the way a person asks an assistant, as a full question.
+
+- Which ten questions would a customer ask an assistant before buying here?
+- Which of them should name this site in the answer?
+Default: one question per top cluster, plus the three the audience asks anyway ("X vs Y", "best X for Z", "is X worth it"). The set is frozen once written.
+
 ## Evidence (needs Keywords), writes "Evidence inventory"
 
 - What first-hand material exists: own data, tests run, screenshots, customer results, benchmarks, before/after numbers, failures?

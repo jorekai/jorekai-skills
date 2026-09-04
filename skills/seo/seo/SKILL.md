@@ -23,6 +23,8 @@ Every skill reads and writes `docs/seo/<domain>/` in the site's repository: `con
 
 **Weekly loop** (15 minutes): export GSC; `jorekai-seo:gsc-review` (site baseline from both exports, then the verdicts on last weeks' rows, then the new buckets); top row via `jorekai-seo:content`; `jorekai-seo:review` before it ships; 2 internal links from older pages; request indexing (IndexNow by the agent via `connect/scripts/indexnow.sh`; Google "Request indexing" by the owner in URL Inspection, the Indexing API covers only `JobPosting` and `BroadcastEvent`); `jorekai-seo:distribution`. Every step leaves a log row.
 
+**Monthly**, for the site's owner: `jorekai-seo:report` writes `reports/YYYY-MM.md` from the month's exports and log weeks: totals against the median page, every action with its verdict, visibility in AI answers, and the three things next month does.
+
 **Site not in a repository** (hosted CMS): fixes and snippet rows go to a session on the server, prompt and report format in [references/session-contract.md](references/session-contract.md), stack recipes in [references/stacks/](references/stacks/).
 
 **Something dropped**: `jorekai-seo:diagnose`. Six hypotheses, one change, verify date in the log.
@@ -34,6 +36,7 @@ Every skill reads and writes `docs/seo/<domain>/` in the site's repository: `con
 | Need | Skill | Invoked by |
 |---|---|---|
 | Where am I in the loop, what comes next? | `jorekai-seo:and-now` | you |
+| What did the month change and earn, for the owner? | `jorekai-seo:report` | you |
 | Set up the workspace for a repo or a new domain | `jorekai-seo:setup` | you |
 | Connect Search Console, sitemap, Bing, IndexNow; submit changed URLs to IndexNow (`scripts/indexnow.sh`) | `jorekai-seo:connect` | you |
 | Pin niche, audience, competitors, keywords, evidence, vocabulary | `jorekai-seo:grill` | you |

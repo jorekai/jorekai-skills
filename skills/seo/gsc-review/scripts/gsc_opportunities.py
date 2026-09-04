@@ -15,8 +15,8 @@ Buckets:
   cannibal      one query served by several of your pages (needs --page-queries)
   not-indexed   URLs from --not-indexed, listed for action
 
-With --previous the report also carries the site baseline: the median change of every page
-present in both exports. One page's change counts only against that line. It suggests
+With --previous the report also carries the site totals and the site baseline: the median change
+of every page present in both exports. One page's change counts only against that line. It suggests
 --expected-ctr-1 from the site's own non-brand queries at position 1 as well.
 """
 import argparse
@@ -208,6 +208,15 @@ def decay(now_pages, prev_pages, a):
     return sorted(hits, key=lambda r: -r["lost"])
 
 
+def totals(rows):
+    """Clicks and impressions of the rows in the export. The UI export caps a table at 1,000 rows,
+    so on a big site this is the top of the site, not the site."""
+    clicks = sum(r["clicks"] for r in rows)
+    impressions = sum(r["impressions"] for r in rows)
+    return {"rows": len(rows), "clicks": clicks, "impressions": impressions,
+            "ctr": clicks / impressions if impressions else 0.0}
+
+
 def median(xs):
     s = sorted(xs)
     if not s:
@@ -298,6 +307,23 @@ def render(res, a):
         o.append(f"Suggested --expected-ctr-1: {cal['ctr_1']:.2f} (median CTR of {cal['n']} non-brand queries at position 1.0 to 1.5).")
     else:
         o.append(f"No --expected-ctr-1 suggestion: {cal['n']} non-brand queries at position 1.0 to 1.5, {MIN_CALIBRATION_N} needed.")
+    o.append("")
+    t = res["totals"]
+    o.append(f"## Site totals: the {t['source']} in this export, capped at 1,000 rows per table")
+    o.append("")
+    n, prev = t["now"], t["previous"]
+    if prev is None:
+        o.append(table(["Metric", "This export"],
+                       [("Clicks", n["clicks"]), ("Impressions", n["impressions"]),
+                        ("CTR", fmt_pct(n["ctr"])), (t["source"].capitalize(), n["rows"])]))
+    else:
+        def change(a, b):
+            return f"{(a - b) / b * 100:+.1f} %" if b else "n/a"
+        o.append(table(["Metric", "This export", "Previous", "Change"],
+                       [("Clicks", n["clicks"], prev["clicks"], change(n["clicks"], prev["clicks"])),
+                        ("Impressions", n["impressions"], prev["impressions"], change(n["impressions"], prev["impressions"])),
+                        ("CTR", fmt_pct(n["ctr"]), fmt_pct(prev["ctr"]), f"{(n['ctr'] - prev['ctr']) * 100:+.2f} pp"),
+                        (t["source"].capitalize(), n["rows"], prev["rows"], f"{n['rows'] - prev['rows']:+d}")]))
     o.append("")
     o.append("## Site baseline: subtract it before a single page counts as won")
     o.append("")
@@ -393,11 +419,14 @@ def main():
            "striking_queries": striking(queries, a), "striking_pages": striking(pages, a, is_query=False),
            "ctr_gap_queries": ctr_gap(queries, a), "ctr_gap_pages": ctr_gap(pages, a, is_query=False),
            "decay": None, "cannibal": None, "not_indexed": None, "baseline": None,
-           "calibration": ctr_calibration(queries, a)}
+           "calibration": ctr_calibration(queries, a),
+           "totals": {"source": "pages" if pages else "queries", "previous": None,
+                      "now": totals(pages or queries)}}
     if a.previous:
-        _, prev_pages = split_export(load_export(a.previous))
+        prev_queries, prev_pages = split_export(load_export(a.previous))
         res["decay"] = decay(pages, prev_pages, a)
         res["baseline"] = baseline(pages, prev_pages, a)
+        res["totals"]["previous"] = totals(prev_pages if pages else prev_queries)
     if a.page_queries:
         res["cannibal"] = cannibal(load_page_queries(a.page_queries), a)
     if a.not_indexed:

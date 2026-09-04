@@ -1,0 +1,5 @@
+interface:
+  display_name: "SEO monthly report"
+  short_description: "What the month changed and earned, for the site's owner"
+policy:
+  allow_implicit_invocation: false

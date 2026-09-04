@@ -19,6 +19,7 @@ Working files for search work on this repository. One folder per canonical host.
 - `briefs/<slug>.md`: per-page brief from `jorekai-seo:content` (target query, SERP recon, outline, evidence answers, and an append-only "SERP observations" section, one dated line per look at the result page with market, device, and the blocks above the organic results).
 - `drafts/<slug>.md`: drafts before they move into the site's content directory.
 - `exports/`: Search Console exports, named `YYYY-MM-DD-<what>.zip` or `.csv`. Ignored by git.
+- `reports/YYYY-MM.md`: the monthly report for the site's owner, written by `jorekai-seo:report` from the month's exports and log weeks.
 - `audits/`: full reports from `jorekai-seo:tech-audit`, `YYYY-MM-DD-tech.json` (every list) and `.md` (the ranked summary). Log rows point here instead of repeating URLs.
 - `outreach.csv`: link targets from `jorekai-seo:links` (`url, site, contact, why, status`).
 

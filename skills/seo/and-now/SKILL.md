@@ -1,6 +1,6 @@
 ---
 name: and-now
-description: Where a domain stands in the SEO loop (setup, audit, weekly loop) and the next step, read from the workspace files alone via scripts/status.py: open log rows, verify dates due, export age, briefs without drafts, drafts not shipped.
+description: Where a domain stands in the SEO loop (setup, audit, weekly loop) and the next step, read from the workspace files alone via scripts/status.py: open log rows, verify dates due, export age, briefs without drafts, drafts not shipped, last month without a report.
 disable-model-invocation: true
 argument-hint: "[domain]"
 ---

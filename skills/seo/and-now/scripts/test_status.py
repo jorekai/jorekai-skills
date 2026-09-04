@@ -21,13 +21,13 @@ SCAFFOLD = HERE.parent.parent / "setup" / "scripts" / "scaffold.py"
 TODAY = dt.date(2026, 9, 3)
 DOMAIN = "example.com"
 LOG_HEAD = ("# 2026-W36 (2026-08-31 to 2026-09-06)\n\nSource: {source}\n\n## Outcomes of earlier actions\n\n"
-            "| id | URL | Applied | Then | Now | Verdict |\n|---|---|---|---|---|---|\n\n## Actions\n\n"
-            "| id | Bucket | URL | Query | Action | Status | Applied | Verify after | Outcome |\n"
-            "|---|---|---|---|---|---|---|---|---|\n")
+            "| id | URL | Applied | Then | Now | Baseline | Verdict |\n|---|---|---|---|---|---|---|\n\n## Actions\n\n"
+            "| id | Bucket | URL | Query | Action | Then | Status | Applied | Verify after | Outcome |\n"
+            "|---|---|---|---|---|---|---|---|---|---|\n")
 
 
 def row(i, bucket, url, state, applied="", verify=""):
-    return f"| 2026-W36-{i:02d} | {bucket} | {url} | q | do x | {state} | {applied} | {verify} | |\n"
+    return f"| 2026-W36-{i:02d} | {bucket} | {url} | q | do x | pos 12.4 | {state} | {applied} | {verify} | |\n"
 
 
 class Stages(unittest.TestCase):
@@ -170,6 +170,9 @@ class Stages(unittest.TestCase):
                   row(2, "links", "/sbf-see-und-binnen/", "applied", "2026-09-03", "2026-10-01"),
                   row(3, "distribution", "/sbf-see-und-binnen/", "applied", "2026-09-03", "2026-10-01")],
                  source="exports/2026-09-01-gsc.zip")
+        _, now, _ = self.stage()
+        self.assertTrue(any("jorekai-seo:report" in n and "2026-08" in n for n in now), now)
+        (self.base / "reports" / "2026-08.md").write_text("# report", encoding="utf-8")
         _, now, _ = self.stage()
         self.assertIn("nothing open", now[0])
 

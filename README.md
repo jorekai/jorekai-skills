@@ -16,7 +16,7 @@ Skills live under `skills/<theme>/<skill>/`. Each skill is a directory with `SKI
 - One user-invoked router per theme (for example `/jorekai-seo:seo`) names the sub-skills, the flows, and the priorities. No context cost until it is called.
 - User-invoked skills (`disable-model-invocation: true` plus `policy.allow_implicit_invocation: false` in `agents/openai.yaml`) orchestrate; model-invoked skills with a sharp `description` (one trigger per branch) hold the reusable discipline. Steps end on a completion criterion; reference material sits behind pointers.
 - No tool marketing in steps: tools appear only in `references/tools.md` and are interchangeable.
-- State lives in the project, not in the skill: the SEO skills read and write `docs/seo/<domain>/` in the site's repository (config, strategy, glossary, weekly log, briefs, drafts, exports). `docs/seo/README.md`, written by `jorekai-seo:setup`, documents the layout and the log format.
+- State lives in the project, not in the skill: the SEO skills read and write `docs/seo/<domain>/` in the site's repository (config, strategy, glossary, weekly log, briefs, drafts, exports, reports). `docs/seo/README.md`, written by `jorekai-seo:setup`, documents the layout and the log format.
 
 ## The SEO loop, start to end
 
@@ -46,11 +46,16 @@ flowchart TD
         W6 -. "next week" .-> W0
     end
 
+    subgraph M["Monthly, for the owner"]
+        M1["jorekai-seo:report<br/>totals against the median page, the month's verdicts, AI answers, three next steps"]
+    end
+
     subgraph D["Drop"]
         D1["jorekai-seo:diagnose<br/>make the drop visible in GSC data, six hypotheses in order, one change, verify date"]
     end
 
     S4 --> W0
+    W1 -. "once a month" .-> M1
     W1 -- "clicks or position fell" --> D1
     D1 --> W4
     W1 -- "FAIL in the audit" --> S4
@@ -70,7 +75,8 @@ flowchart TD
 | Link | `jorekai-seo:links` | Internal links first, then `outreach.csv` with a reason per target, emails, status | Internal links cost nothing and work immediately. Paid links carry `rel="sponsored"`. |
 | Distribute | `jorekai-seo:distribution` | Three texts, keyword in line one, the link where it completes the answer | Reach and referral traffic, not ranking credit: Reddit and LinkedIn set `nofollow`. |
 | Repair | `jorekai-seo:diagnose` | The red line from the export, ranked hypotheses with predictions, one change, `diagnose` row in the log | Data first, theory second. Two changes in one verify window make the outcome unreadable. |
-| Orient | `jorekai-seo:and-now` | Stage (setup, audit, loop), open log rows, verify dates due, export age, briefs without drafts, drafts not shipped; the next skill to call | The state of the loop lives in files, not in anyone's memory. One command answers "and now?" after a break. |
+| Report | `jorekai-seo:report` | `reports/YYYY-MM.md`: totals and the median page from the month's exports, every action with its verdict, AI answer visibility, three next steps with log ids | The owner asks what the money bought. Everything needed sits in the workspace already, so the report costs no new data and no new claim. |
+| Orient | `jorekai-seo:and-now` | Stage (setup, audit, loop), open log rows, verify dates due, export age, briefs without drafts, drafts not shipped, last month without a report; the next skill to call | The state of the loop lives in files, not in anyone's memory. One command answers "and now?" after a break. |
 
 ### The log
 
@@ -84,6 +90,7 @@ Theme `skills/seo/`. You call user-invoked skills yourself (`/jorekai-seo:<name>
 |---|---|---|
 | `jorekai-seo:seo` | user | Router: workspace, three flows, priority ladder, launch checklist, domain naming, tool stack, `references/sources.md` |
 | `jorekai-seo:setup` | user | `scripts/scaffold.py`: create folders, `--log` (log path and next id), `--due` (actions due), `--check` |
+| `jorekai-seo:report` | user | no script of its own: the totals and baseline of `gsc_opportunities.py`, the month's log rows, `templates/report.md`, `references/ai-visibility.md` |
 | `jorekai-seo:and-now` | user | `scripts/status.py [domain]`: stage and next steps from the workspace files, no network |
 | `jorekai-seo:connect` | user | `templates/wizard.sh`: wizard library; `references/stages.md`: verified click paths; `scripts/indexnow.sh <domain> URL…`: submit changed URLs to IndexNow |
 | `jorekai-seo:grill` | user | `references/question-bank.md`: the question tree |
