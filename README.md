@@ -1,9 +1,9 @@
-# jorekai-skills
+# skills
 
 Hand-maintained skills for recurring work, one Claude Code plugin per theme. Install once, then the skills are slash commands in every repository:
 
 ```bash
-claude plugin marketplace add jorekai/jorekai-skills
+claude plugin marketplace add jorekai/skills
 claude plugin install jorekai-seo@jorekai
 ```
 
@@ -100,7 +100,7 @@ Theme `skills/seo/`. You call user-invoked skills yourself (`/jorekai-seo:<name>
 The collection is a Claude Code plugin (`.claude-plugin/plugin.json`, marketplace `jorekai` in `.claude-plugin/marketplace.json`). Installed once at user scope, every skill is available in every repo as `/jorekai-<theme>:<name>`, with autocomplete after `/jorekai-`:
 
 ```bash
-claude plugin marketplace add jorekai/jorekai-skills          # once; a local checkout works too: marketplace add /path/to/jorekai-skills
+claude plugin marketplace add jorekai/skills                  # once; a local checkout works too: marketplace add /path/to/skills
 claude plugin install jorekai-seo@jorekai
 ```
 

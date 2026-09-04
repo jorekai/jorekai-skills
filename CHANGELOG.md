@@ -16,6 +16,7 @@ One entry per plugin version. The version at the top equals `version` in `.claud
 - Added: `check.sh` fails when a skill directory is missing from its theme's router or from `README.md`, and when a `jorekai-<theme>:<name>` written in any tracked file names no directory.
 - Added: `scaffold.py --log` prints the commit trailer `SEO-Log: <id>`; the workspace README documents it and `diagnose` hypothesis 5 reads it with `git log --grep`.
 - Added: `STYLE.md` rule for steps that fan out: one named table, one word limit, the reading stays in the subagent (`decisions/0008`).
+- Changed: the repository is `jorekai/skills`, so the install reads `claude plugin marketplace add jorekai/skills`; GitHub redirects the old path.
 - Changed: `seo/references/remote-session.md` split into `references/session-contract.md` (the protocol, every stack) and `references/stacks/wordpress.md` (the recipes).
 
 ## 1.4.0 (2026-09-04)
